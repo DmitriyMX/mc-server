@@ -38,6 +38,11 @@ dependencies {
 
     implementation libs.dagger2.implementation
     annotationProcessor libs.dagger2.annotationProcessor
+
+    implementation platform('io.projectreactor:reactor-bom:2020.0.6')
+    implementation 'io.projectreactor:reactor-core'
+
+    implementation 'io.netty:netty-all:4.1.22.Final'
 }
 
 application.mainClassName = 'mc.server.Main'
