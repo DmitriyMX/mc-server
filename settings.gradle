@@ -1,0 +1,13 @@
+//region Load gradle.properties
+def map = new HashMap<>()
+rootProject.projectDir.toPath().resolve('gradle.properties').readLines().forEach({
+    if (!it.trim().isEmpty()) {
+        String[] parts = it.split('=', 2)
+        map.put(parts[0].trim(), parts[1])
+    }
+})
+//endregion
+
+rootProject.name = map.get('project.name')
+
+include('server')
