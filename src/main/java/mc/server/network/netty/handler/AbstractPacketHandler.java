@@ -1,4 +1,4 @@
-package mc.server.network.netty;
+package mc.server.network.netty.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

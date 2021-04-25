@@ -1,4 +1,4 @@
-package mc.server.network.netty;
+package mc.server.network.netty.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;

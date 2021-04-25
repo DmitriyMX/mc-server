@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import mc.protocol.packets.Packet;
 import mc.protocol.packets.PacketDirection;
 import mc.protocol.packets.client.HandshakePacket;
+import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequest;
+import mc.protocol.packets.server.DisconnectPacket;
 import mc.protocol.packets.server.StatusServerResponse;
 
 import javax.annotation.Nullable;
@@ -24,6 +26,12 @@ public enum State {
 			ImmutableBiMap.of(0x00, StatusServerRequest.class),
 			// client bound
 			ImmutableBiMap.of(0x00, StatusServerResponse.class)
+	),
+	LOGIN(2,
+			// server bound
+			ImmutableBiMap.of(0x00, LoginStartPacket.class),
+			// client bound
+			ImmutableBiMap.of(0x00, DisconnectPacket.class)
 	);
 
 	@Nullable

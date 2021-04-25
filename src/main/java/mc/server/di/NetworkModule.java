@@ -16,9 +16,10 @@ import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
 import mc.server.network.Server;
-import mc.server.network.netty.HandshakeHandler;
+import mc.server.network.netty.handler.HandshakeHandler;
 import mc.server.network.netty.NettyServer;
-import mc.server.network.netty.StatusHandler;
+import mc.server.network.netty.handler.LoginHandler;
+import mc.server.network.netty.handler.StatusHandler;
 
 import javax.inject.Provider;
 import java.util.LinkedHashMap;
@@ -56,14 +57,17 @@ public class NetworkModule {
 	}
 
 	@Provides
-	Map<String, ChannelHandler> provideChannelHandlerMap(Provider<StatusHandler> statusHandlerProvider) {
+	Map<String, ChannelHandler> provideChannelHandlerMap(
+			Provider<StatusHandler> statusHandlerProvider,
+			Provider<LoginHandler> loginHandlerProvider
+	) {
 		Map<String, ChannelHandler> map = new LinkedHashMap<>();
 
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
 		map.put("protocol_splitter", new ProtocolSplitter());
 		map.put("protocol_decoder", new ProtocolDecoder(true));
 		map.put("protocol_encoder", new ProtocolEncoder());
-		map.put("handshake_handler", new HandshakeHandler(statusHandlerProvider));
+		map.put("handshake_handler", new HandshakeHandler(statusHandlerProvider, loginHandlerProvider));
 
 		return map;
 	}
@@ -71,5 +75,10 @@ public class NetworkModule {
 	@Provides
 	StatusHandler provideStatusHandler() {
 		return new StatusHandler();
+	}
+
+	@Provides
+	LoginHandler provideLoginHandler() {
+		return new LoginHandler();
 	}
 }
