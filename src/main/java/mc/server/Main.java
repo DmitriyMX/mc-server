@@ -13,6 +13,6 @@ public class Main {
 
 		NetworkComponent networkComponent = DaggerNetworkComponent.create();
 		Server server = networkComponent.getServer();
-		server.start("127.0.0.1", 25565);
+		server.bind("127.0.0.1", 25565);
 	}
 }

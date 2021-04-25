@@ -12,12 +12,11 @@ public class NettyServer implements Server {
 	private final ServerBootstrap serverBootstrap;
 
 	@Override
-	public void start(String host, int port) {
+	public void bind(String host, int port) {
 		log.info("Network starting: {}:{}", host, port);
 
 		try {
-			serverBootstrap.bind(host, port)
-					.sync().channel().closeFuture().sync();
+			serverBootstrap.bind(host, port).sync().channel().closeFuture().sync();
 		} catch (InterruptedException e) {
 			if (log.isTraceEnabled()) {
 				log.trace("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);

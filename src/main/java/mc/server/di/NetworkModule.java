@@ -6,19 +6,26 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.extern.slf4j.Slf4j;
+import mc.protocol.io.codec.ProtocolDecoder;
+import mc.protocol.io.codec.ProtocolEncoder;
+import mc.protocol.io.codec.ProtocolSplitter;
 import mc.server.network.Server;
+import mc.server.network.netty.HandshakeHandler;
 import mc.server.network.netty.NettyServer;
+import mc.server.network.netty.StatusHandler;
 
-import javax.inject.Named;
-import java.util.Collections;
-import java.util.List;
+import javax.inject.Provider;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Module
+@Slf4j
 public class NetworkModule {
 
 	@Provides
@@ -27,14 +34,10 @@ public class NetworkModule {
 	}
 
 	@Provides
-	ServerBootstrap provideServerBootstrap(
-			@Named("boss-group") EventLoopGroup bossGroup,
-			@Named("worker-group") EventLoopGroup workerGroup,
-			ChannelInitializer<SocketChannel> channelChannelInitializer
-	) {
+	ServerBootstrap provideServerBootstrap(ChannelInitializer<SocketChannel> channelChannelInitializer) {
 		ServerBootstrap bootstrap = new ServerBootstrap();
 
-		bootstrap.group(bossGroup, workerGroup)
+		bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup())
 				.channel(NioServerSocketChannel.class)
 				.childHandler(channelChannelInitializer);
 
@@ -42,30 +45,31 @@ public class NetworkModule {
 	}
 
 	@Provides
-	@Named("boss-group")
-	EventLoopGroup provideBossGroup() {
-		return new NioEventLoopGroup(1);
-	}
-
-	@Provides
-	@Named("worker-group")
-	EventLoopGroup provideWorkerGroup() {
-		return new NioEventLoopGroup();
-	}
-
-	@Provides
-	ChannelInitializer<SocketChannel> provideChannelChannelInitializer(List<ChannelHandler> channelHandlerList) {
+	ChannelInitializer<SocketChannel> provideChannelChannelInitializer(Provider<Map<String, ChannelHandler>> channelHandlerMapProvider) {
 		return new ChannelInitializer<>() {
 			@Override
 			protected void initChannel(SocketChannel socketChannel) {
-				final ChannelPipeline pipeline = socketChannel.pipeline();
-				channelHandlerList.forEach(pipeline::addLast);
+				ChannelPipeline pipeline = socketChannel.pipeline();
+				channelHandlerMapProvider.get().forEach(pipeline::addLast);
 			}
 		};
 	}
 
 	@Provides
-	List<ChannelHandler> provideChannelHandlerList() {
-		return Collections.singletonList(new LoggingHandler());
+	Map<String, ChannelHandler> provideChannelHandlerMap(Provider<StatusHandler> statusHandlerProvider) {
+		Map<String, ChannelHandler> map = new LinkedHashMap<>();
+
+		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
+		map.put("protocol_splitter", new ProtocolSplitter());
+		map.put("protocol_decoder", new ProtocolDecoder(true));
+		map.put("protocol_encoder", new ProtocolEncoder());
+		map.put("handshake_handler", new HandshakeHandler(statusHandlerProvider));
+
+		return map;
+	}
+
+	@Provides
+	StatusHandler provideStatusHandler() {
+		return new StatusHandler();
 	}
 }

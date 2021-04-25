@@ -43,6 +43,19 @@ dependencies {
     implementation 'io.projectreactor:reactor-core'
 
     implementation 'io.netty:netty-all:4.1.22.Final'
+    implementation libs.guava
+
+    testImplementation libs.junit5.api
+    testImplementation libs.junit5.params
+    testRuntimeOnly libs.junit5.engine
+
+    testImplementation libs.lang3
 }
 
-application.mainClassName = 'mc.server.Main'
+application {
+    mainClassName = 'mc.server.Main'
+}
+
+test {
+    useJUnitPlatform()
+}
