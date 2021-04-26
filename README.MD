@@ -7,3 +7,11 @@
 ---
 
 * Java 11
+
+---
+
+## Запуск
+
+```shell
+gradle :server:run
+```

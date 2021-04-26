@@ -1,5 +1,6 @@
 //file:noinspection GroovyAssignabilityCheck
 //file:noinspection GrUnresolvedAccess
+//file:noinspection GroovyConstructorNamedArguments
 
 def slf4j_version = '1.7.30'
 def logback_version = '1.2.3'
@@ -26,7 +27,11 @@ ext {
             annotationProcessor: "com.google.dagger:dagger-compiler:${dagger2_version}"
     ]
 
-    libs.junit5 = [
+    libs.test = [
+            logger: "org.slf4j:slf4j-simple:${slf4j_version}"
+    ]
+
+    libs.test.junit5 = [
             api   : "org.junit.jupiter:junit-jupiter-api:${junit_version}",
             //runtime only
             engine: "org.junit.jupiter:junit-jupiter-engine:${junit_version}",
