@@ -4,7 +4,22 @@
  */
 
 import ru.dmitriymx.gradle.plugin.LibsPlugin
-import ru.dmitriymx.gradle.plugin.LogicPlugin
+
+class Logic {
+    private final Project project
+
+    Logic(Project project) {
+        this.project = project
+    }
+
+    String getProperty1(String propertyName1, String propertyName2) {
+        return (String) (project.hasProperty(propertyName1) ? project.property(propertyName1) : project.property(propertyName2))
+    }
+
+    String getProperty1(String propertyName) {
+        return (String) (project.hasProperty(propertyName) ? project.property(propertyName) : null)
+    }
+}
 
 plugins {
     id 'java'
@@ -12,7 +27,8 @@ plugins {
 }
 
 apply plugin: LibsPlugin
-apply plugin: LogicPlugin
+
+def logic = new Logic(project)
 
 project.group = logic.getProperty1('project.group')
 project.version = logic.getProperty1('project.version')
