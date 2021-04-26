@@ -5,44 +5,13 @@
 
 import ru.dmitriymx.gradle.plugin.LibsPlugin
 
-class Logic {
-    private final Project project
-
-    Logic(Project project) {
-        this.project = project
-    }
-
-    String getProperty1(String propertyName1, String propertyName2) {
-        return (String) (project.hasProperty(propertyName1) ? project.property(propertyName1) : project.property(propertyName2))
-    }
-
-    String getProperty1(String propertyName) {
-        return (String) (project.hasProperty(propertyName) ? project.property(propertyName) : null)
-    }
-}
-
 plugins {
     id 'java'
     id 'application'
 }
 
 apply plugin: LibsPlugin
-
-def logic = new Logic(project)
-
-project.group = logic.getProperty1('project.group')
-project.version = logic.getProperty1('project.version')
-jar.archiveBaseName.set(logic.getProperty1('project.name'))
-
-compileJava {
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
-    options.encoding = 'UTF-8'
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
+apply from: rootDir.toPath().resolve('logic.gradle').toFile()
 
 dependencies {
     annotationProcessor libs.lombok

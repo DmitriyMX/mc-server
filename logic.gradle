@@ -1,0 +1,17 @@
+String getProperty1(String propertyName1, String propertyName2) {
+    return (String) (project.hasProperty(propertyName1) ? project.property(propertyName1) : project.property(propertyName2))
+}
+
+project.group = getProperty1('module.group', 'project.group')
+project.version = getProperty1('module.version', 'project.version')
+project.jar.archiveBaseName.set(getProperty1('module.name', 'project.name'))
+
+compileJava {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
