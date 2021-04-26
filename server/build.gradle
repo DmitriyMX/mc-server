@@ -1,0 +1,23 @@
+/*
+Запуск
+    gradle :server:run
+ */
+
+apply from: rootDir.toPath().resolve('logic.gradle').toFile()
+apply plugin: 'application'
+
+application {
+    mainClassName = 'mc.server.Main'
+}
+
+dependencies {
+    implementation project(':protocol')
+
+    implementation libs.logger.logback
+
+    implementation platform('io.projectreactor:reactor-bom:2020.0.6')
+    implementation 'io.projectreactor:reactor-core'
+
+    implementation 'io.netty:netty-all:4.1.22.Final'
+    implementation libs.guava
+}

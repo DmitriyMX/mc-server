@@ -1,0 +1,42 @@
+//file:noinspection GrUnresolvedAccess
+apply plugin: 'java'
+apply from: rootDir.toPath().resolve('libs.gradle').toFile()
+
+String getProperty1(String propertyName1, String propertyName2) {
+    return (String) (project.hasProperty(propertyName1) ? project.property(propertyName1) : project.property(propertyName2))
+}
+
+project.group = getProperty1('module.group', 'project.group')
+project.version = getProperty1('module.version', 'project.version')
+jar.archiveBaseName.set(getProperty1('module.name', 'project.name'))
+
+compileJava {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor libs.lombok
+    compileOnly libs.lombok
+    compileOnly libs.annotations
+
+    implementation libs.logger.slf4j
+
+    implementation libs.dagger2.implementation
+    annotationProcessor libs.dagger2.annotationProcessor
+
+    testImplementation libs.test.junit5.api
+    testImplementation libs.test.junit5.params
+    testRuntimeOnly libs.test.junit5.engine
+
+    testRuntimeOnly libs.test.logger
+}
+
+test {
+    useJUnitPlatform()
+}

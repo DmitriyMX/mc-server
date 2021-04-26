@@ -10,4 +10,5 @@ rootProject.projectDir.toPath().resolve('gradle.properties').readLines().forEach
 
 rootProject.name = map.get('project.name')
 
+include('protocol')
 include('server')
