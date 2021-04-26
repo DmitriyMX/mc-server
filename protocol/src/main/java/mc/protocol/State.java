@@ -55,6 +55,7 @@ public enum State {
 	@Getter
 	private final int id;
 
+	@Getter
 	private final BiMap<Integer, Class<? extends Packet>> serverBoundPackets;
 	private final BiMap<Integer, Class<? extends Packet>> clientBoundPackets;
 

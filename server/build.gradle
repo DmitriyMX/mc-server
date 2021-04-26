@@ -15,9 +15,7 @@ dependencies {
 
     implementation libs.logger.logback
 
-    implementation platform('io.projectreactor:reactor-bom:2020.0.6')
-    implementation 'io.projectreactor:reactor-core'
-
-    implementation 'io.netty:netty-all:4.1.22.Final'
+    implementation libs.netty
+    implementation libs.reactor
     implementation libs.guava
 }

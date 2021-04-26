@@ -1,7 +1,8 @@
 apply from: rootDir.toPath().resolve('logic.gradle').toFile()
 
 dependencies {
-    implementation 'io.netty:netty-all:4.1.22.Final'
+    implementation libs.netty
+    implementation libs.reactor
     implementation libs.guava
 
     testImplementation libs.lang3

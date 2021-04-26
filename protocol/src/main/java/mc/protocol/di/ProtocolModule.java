@@ -1,5 +1,6 @@
-package mc.server.di;
+package mc.protocol.di;
 
+import com.google.common.collect.ImmutableMap;
 import dagger.Module;
 import dagger.Provides;
 import io.netty.bootstrap.ServerBootstrap;
@@ -11,28 +12,29 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import lombok.extern.slf4j.Slf4j;
+import mc.protocol.ChannelContext;
+import mc.protocol.NettyServer;
+import mc.protocol.PacketInboundHandler;
+import mc.protocol.State;
 import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
-import mc.server.network.Server;
-import mc.server.network.netty.handler.HandshakeHandler;
-import mc.server.network.netty.NettyServer;
-import mc.server.network.netty.handler.KeepAliveHandler;
-import mc.server.network.netty.handler.LoginHandler;
-import mc.server.network.netty.handler.StatusHandler;
+import mc.protocol.packets.Packet;
+import reactor.core.publisher.Sinks;
 
 import javax.inject.Provider;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Module
-@Slf4j
-public class NetworkModule {
+public class ProtocolModule {
 
+	@SuppressWarnings("rawtypes")
 	@Provides
-	Server provideServer(ServerBootstrap serverBootstrap) {
-		return new NettyServer(serverBootstrap);
+	NettyServer provideServer(ServerBootstrap serverBootstrap,
+							  Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> observedMap) {
+		return new NettyServer(serverBootstrap, observedMap);
 	}
 
 	@Provides
@@ -47,7 +49,9 @@ public class NetworkModule {
 	}
 
 	@Provides
-	ChannelInitializer<SocketChannel> provideChannelChannelInitializer(Provider<Map<String, ChannelHandler>> channelHandlerMapProvider) {
+	ChannelInitializer<SocketChannel> provideChannelChannelInitializer(
+			Provider<Map<String, ChannelHandler>> channelHandlerMapProvider) {
+
 		return new ChannelInitializer<>() {
 			@Override
 			protected void initChannel(SocketChannel socketChannel) {
@@ -57,36 +61,32 @@ public class NetworkModule {
 		};
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Provides
 	Map<String, ChannelHandler> provideChannelHandlerMap(
-			Provider<StatusHandler> statusHandlerProvider,
-			Provider<LoginHandler> loginHandlerProvider,
-			Provider<KeepAliveHandler> keepAliveHandlerProvider
-	) {
+			Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> observedMap) {
+
 		Map<String, ChannelHandler> map = new LinkedHashMap<>();
 
+		map.put("packet_splitter", new ProtocolSplitter());
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
-		map.put("protocol_splitter", new ProtocolSplitter());
-		map.put("protocol_decoder", new ProtocolDecoder(true));
-		map.put("protocol_encoder", new ProtocolEncoder());
-		map.put("handshake_handler", new HandshakeHandler(
-				statusHandlerProvider, loginHandlerProvider, keepAliveHandlerProvider));
+		map.put("packet_decoder", new ProtocolDecoder(true));
+		map.put("packet_encoder", new ProtocolEncoder());
+		map.put("packet_handler", new PacketInboundHandler(observedMap));
 
 		return map;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Provides
-	StatusHandler provideStatusHandler() {
-		return new StatusHandler();
-	}
+	@ServerScope
+	Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> provideObservedMap() {
+		ImmutableMap.Builder<Class<? extends Packet>, Sinks.Many<ChannelContext>> builder = ImmutableMap.builder();
 
-	@Provides
-	LoginHandler provideLoginHandler() {
-		return new LoginHandler();
-	}
+		Stream.of(State.values())
+				.flatMap(state -> state.getServerBoundPackets().values().stream())
+				.forEach(packetClass -> builder.put(packetClass, Sinks.many().multicast().directBestEffort()));
 
-	@Provides
-	KeepAliveHandler provideKeepAliveHandler() {
-		return new KeepAliveHandler();
+		return builder.build();
 	}
 }
