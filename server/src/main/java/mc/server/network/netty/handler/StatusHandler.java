@@ -28,6 +28,6 @@ public class StatusHandler extends AbstractPacketHandler<StatusServerRequest> {
 				"  }\n" +
 				"}");
 
-		ctx.channel().writeAndFlush(response).channel().disconnect();
+		ctx.channel().writeAndFlush(response);
 	}
 }

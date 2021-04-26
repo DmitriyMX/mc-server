@@ -18,6 +18,7 @@ import mc.protocol.io.codec.ProtocolSplitter;
 import mc.server.network.Server;
 import mc.server.network.netty.handler.HandshakeHandler;
 import mc.server.network.netty.NettyServer;
+import mc.server.network.netty.handler.KeepAliveHandler;
 import mc.server.network.netty.handler.LoginHandler;
 import mc.server.network.netty.handler.StatusHandler;
 
@@ -59,7 +60,8 @@ public class NetworkModule {
 	@Provides
 	Map<String, ChannelHandler> provideChannelHandlerMap(
 			Provider<StatusHandler> statusHandlerProvider,
-			Provider<LoginHandler> loginHandlerProvider
+			Provider<LoginHandler> loginHandlerProvider,
+			Provider<KeepAliveHandler> keepAliveHandlerProvider
 	) {
 		Map<String, ChannelHandler> map = new LinkedHashMap<>();
 
@@ -67,7 +69,8 @@ public class NetworkModule {
 		map.put("protocol_splitter", new ProtocolSplitter());
 		map.put("protocol_decoder", new ProtocolDecoder(true));
 		map.put("protocol_encoder", new ProtocolEncoder());
-		map.put("handshake_handler", new HandshakeHandler(statusHandlerProvider, loginHandlerProvider));
+		map.put("handshake_handler", new HandshakeHandler(
+				statusHandlerProvider, loginHandlerProvider, keepAliveHandlerProvider));
 
 		return map;
 	}
@@ -80,5 +83,10 @@ public class NetworkModule {
 	@Provides
 	LoginHandler provideLoginHandler() {
 		return new LoginHandler();
+	}
+
+	@Provides
+	KeepAliveHandler provideKeepAliveHandler() {
+		return new KeepAliveHandler();
 	}
 }

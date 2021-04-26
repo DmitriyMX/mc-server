@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import mc.protocol.State;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.Packet;
 
@@ -21,7 +20,6 @@ import mc.protocol.packets.Packet;
  * </pre>
  *
  * @see <a href="https://wiki.vg/index.php?title=Protocol&oldid=7368#Login_Start" target="_top">Login start</a>
- * @see State
  */
 @NoArgsConstructor
 @Getter

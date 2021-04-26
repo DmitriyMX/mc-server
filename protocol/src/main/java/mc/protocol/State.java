@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mc.protocol.packets.Packet;
 import mc.protocol.packets.PacketDirection;
+import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequest;
@@ -23,9 +24,15 @@ public enum State {
 	),
 	STATUS(1,
 			// server bound
-			ImmutableBiMap.of(0x00, StatusServerRequest.class),
+			ImmutableBiMap.of(
+					0x00, StatusServerRequest.class,
+					0x01, PingPacket.class
+			),
 			// client bound
-			ImmutableBiMap.of(0x00, StatusServerResponse.class)
+			ImmutableBiMap.of(
+					0x00, StatusServerResponse.class,
+					0x01, PingPacket.class
+			)
 	),
 	LOGIN(2,
 			// server bound
