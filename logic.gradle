@@ -1,3 +1,5 @@
+apply plugin: 'java'
+
 String getProperty1(String propertyName1, String propertyName2) {
     return (String) (project.hasProperty(propertyName1) ? project.property(propertyName1) : project.property(propertyName2))
 }

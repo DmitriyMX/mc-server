@@ -3,13 +3,10 @@
     gradle run
  */
 
-plugins {
-    id 'java'
-    id 'application'
-}
-
 apply from: rootDir.toPath().resolve('logic.gradle').toFile()
 apply from: rootDir.toPath().resolve('libs.gradle').toFile()
+
+apply plugin: 'application'
 
 dependencies {
     annotationProcessor libs.lombok
