@@ -3,6 +3,7 @@
     gradle :server:run
  */
 
+//file:noinspection GrUnresolvedAccess
 apply from: rootDir.toPath().resolve('logic.gradle').toFile()
 apply plugin: 'application'
 
@@ -18,4 +19,5 @@ dependencies {
     implementation libs.netty
     implementation libs.reactor
     implementation libs.guava
+    implementation libs.yaml
 }
