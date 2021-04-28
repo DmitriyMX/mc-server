@@ -1,15 +1,10 @@
 package mc.protocol.packets.server;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonArray;
-import com.eclipsesource.json.JsonObject;
-import com.google.common.collect.Streams;
 import lombok.Data;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.model.ServerInfo;
 import mc.protocol.packets.ServerSidePacket;
-
-import java.util.stream.Collector;
+import mc.protocol.serializer.ServerInfoSerializer;
 
 /**
  * Status server packet, response.
@@ -61,39 +56,6 @@ public class StatusServerResponse implements ServerSidePacket {
 
 	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {
-		JsonObject jsonObject = Json.object()
-				.add("version", createVersionObj())
-				.add("players", createPlayersObj())
-				.add("description", Json.object().add("text", info.description()));
-
-		if (info.favicon() != null && !info.favicon().isEmpty()) {
-			jsonObject.add("favicon", info.favicon());
-		}
-
-		netByteBuf.writeString(jsonObject.toString());
-	}
-
-	private JsonObject createVersionObj() {
-		return Json.object()
-				.add("name", info.version().name())
-				.add("protocol", info.version().protocol());
-	}
-
-	private JsonObject createPlayersObj() {
-		JsonArray sampleArr = info.players().sample().stream()
-				.map(samplePlayer -> Json.object()
-						.add("name", samplePlayer.name())
-						.add("id", samplePlayer.id()))
-				.collect(Collector.of(Json::array, JsonArray::add, StatusServerResponse::jsonArrayAddAll));
-
-		return Json.object()
-				.add("max", info.players().max())
-				.add("online", info.players().online())
-				.add("sample", sampleArr);
-	}
-
-	private static JsonArray jsonArrayAddAll(JsonArray jsonArrayTo, JsonArray jsonArrayFrom) {
-		Streams.stream(jsonArrayFrom).forEach(jsonArrayTo::add);
-		return jsonArrayTo;
+		netByteBuf.writeString(ServerInfoSerializer.toJsonObject(info).toString());
 	}
 }

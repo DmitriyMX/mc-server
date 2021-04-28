@@ -6,6 +6,7 @@ import lombok.ToString;
 import lombok.RequiredArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import mc.protocol.model.text.Text;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class ServerInfo {
 	private final Version version = new Version();
 	private final Players players = new Players();
 
-	private String description;
+	private Text description;
 	private String favicon;
 
 	@Getter

@@ -1,10 +1,11 @@
 package mc.protocol.packets.server;
 
-import com.eclipsesource.json.Json;
 import lombok.Data;
 import mc.protocol.State;
 import mc.protocol.io.NetByteBuf;
+import mc.protocol.model.text.Text;
 import mc.protocol.packets.ServerSidePacket;
+import mc.protocol.serializer.TextSerializer;
 
 /**
  * Diconnect packet.
@@ -34,10 +35,10 @@ public class DisconnectPacket implements ServerSidePacket {
 	/**
 	 * Причина отключения.
 	 */
-	private String reason;
+	private Text reason;
 
 	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {
-		netByteBuf.writeString(Json.object().add("text", reason).toString());
+		netByteBuf.writeString(TextSerializer.toJsonObject(reason).toString());
 	}
 }

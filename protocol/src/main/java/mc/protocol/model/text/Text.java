@@ -1,12 +1,16 @@
 package mc.protocol.model.text;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+@Accessors(fluent = true)
+@Getter
 @EqualsAndHashCode
 @ToString
 public class Text {
