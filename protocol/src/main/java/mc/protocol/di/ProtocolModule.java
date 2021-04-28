@@ -84,7 +84,7 @@ public class ProtocolModule {
 		ImmutableMap.Builder<Class<? extends Packet>, Sinks.Many<ChannelContext>> builder = ImmutableMap.builder();
 
 		Stream.of(State.values())
-				.flatMap(state -> state.getServerBoundPackets().values().stream())
+				.flatMap(state -> state.getClientSidePackets().values().stream())
 				.forEach(packetClass -> builder.put(packetClass, Sinks.many().multicast().directBestEffort()));
 
 		return builder.build();

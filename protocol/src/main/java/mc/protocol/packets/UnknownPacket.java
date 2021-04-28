@@ -7,7 +7,7 @@ import mc.protocol.io.NetByteBuf;
 
 @Data
 @ToString(exclude = "rawData")
-public class UnknownPacket implements Packet {
+public class UnknownPacket implements ClientSidePacket {
 
     private final State state;
     private final int id;
@@ -18,10 +18,5 @@ public class UnknownPacket implements Packet {
     public void readSelf(NetByteBuf netByteBuf) {
         rawData = new byte[dataSize];
         netByteBuf.readBytes(rawData);
-    }
-
-    @Override
-    public void writeSelf(NetByteBuf netByteBuf) {
-        netByteBuf.writeBytes(rawData);
     }
 }

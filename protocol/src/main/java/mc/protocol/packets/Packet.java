@@ -1,7 +1,5 @@
 package mc.protocol.packets;
 
-import mc.protocol.io.NetByteBuf;
-
 /**
  * Пакет.
  *
@@ -18,7 +16,4 @@ import mc.protocol.io.NetByteBuf;
  */
 public interface Packet {
 
-	void readSelf(NetByteBuf netByteBuf);
-
-	void writeSelf(NetByteBuf netByteBuf);
 }

@@ -13,6 +13,6 @@ import mc.protocol.packets.EmptyPacket;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class StatusServerRequest extends EmptyPacket {
+public class StatusServerRequestPacket extends EmptyPacket {
 
 }

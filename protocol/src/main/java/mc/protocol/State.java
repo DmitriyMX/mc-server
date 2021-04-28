@@ -1,44 +1,45 @@
 package mc.protocol;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.Packet;
-import mc.protocol.packets.PacketDirection;
 import mc.protocol.packets.PingPacket;
+import mc.protocol.packets.ServerSidePacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
-import mc.protocol.packets.client.StatusServerRequest;
+import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.StatusServerResponse;
+import mc.protocol.packets.server.StatusServerResponsePacket;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public enum State {
 
 	HANDSHAKING(-1,
-			// server bound
-			ImmutableBiMap.of(0x00, HandshakePacket.class)
+			// client side
+			Map.of(0x00, HandshakePacket.class)
 	),
 	STATUS(1,
-			// server bound
-			ImmutableBiMap.of(
-					0x00, StatusServerRequest.class,
+			// client side
+			Map.of(
+					0x00, StatusServerRequestPacket.class,
 					0x01, PingPacket.class
 			),
-			// client bound
-			ImmutableBiMap.of(
-					0x00, StatusServerResponse.class,
-					0x01, PingPacket.class
+			// server side
+			Map.of(
+					StatusServerResponsePacket.class, 0x00,
+					PingPacket.class, 0x01
 			)
 	),
 	LOGIN(2,
 			// server bound
-			ImmutableBiMap.of(0x00, LoginStartPacket.class),
+			Map.of(0x00, LoginStartPacket.class),
 			// client bound
-			ImmutableBiMap.of(0x00, DisconnectPacket.class)
+			Map.of(DisconnectPacket.class, 0x00)
 	);
 
 	@Nullable
@@ -56,30 +57,22 @@ public enum State {
 	private final int id;
 
 	@Getter
-	private final BiMap<Integer, Class<? extends Packet>> serverBoundPackets;
-	private final BiMap<Integer, Class<? extends Packet>> clientBoundPackets;
+	private final Map<Integer, Class<? extends ClientSidePacket>> clientSidePackets;
+	private final Map<Class<? extends ServerSidePacket>, Integer> serverSidePackets;
 
-	State(int id, BiMap<Integer, Class<? extends Packet>> serverBoundPackets) {
+	State(int id, Map<Integer, Class<? extends ClientSidePacket>> clientSidePackets) {
 		this.id = id;
-		this.serverBoundPackets = serverBoundPackets;
-		this.clientBoundPackets = ImmutableBiMap.of();
+		this.clientSidePackets = clientSidePackets;
+		this.serverSidePackets = Collections.emptyMap();
 	}
 
 	@Nullable
-	public Class<? extends Packet> getPacketById(PacketDirection direction, int id) {
-		if (PacketDirection.CLIENT_BOUND == direction) {
-			return clientBoundPackets == null ? null : clientBoundPackets.get(id);
-		} else {
-			return serverBoundPackets == null ? null : serverBoundPackets.get(id);
-		}
+	public Class<? extends ClientSidePacket> getClientSidePacketById(int id) {
+		return clientSidePackets == null ? null : clientSidePackets.get(id);
 	}
 
 	@Nullable
-	public Integer getIdByPacket(PacketDirection direction, Class<? extends Packet> clazz) {
-		if (PacketDirection.CLIENT_BOUND == direction) {
-			return clientBoundPackets == null ? null : clientBoundPackets.inverse().get(clazz);
-		} else {
-			return serverBoundPackets == null ? null : serverBoundPackets.inverse().get(clazz);
-		}
+	public Integer getServerSidePacketId(Class<? extends Packet> clazz) {
+		return serverSidePackets == null ? null : serverSidePackets.get(clazz);
 	}
 }

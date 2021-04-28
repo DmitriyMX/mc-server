@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import mc.protocol.State;
 import mc.protocol.io.NetByteBuf;
-import mc.protocol.packets.Packet;
+import mc.protocol.packets.ClientSidePacket;
 
 /**
  * Handshake packet.
@@ -32,7 +32,7 @@ import mc.protocol.packets.Packet;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class HandshakePacket implements Packet {
+public class HandshakePacket implements ClientSidePacket {
 
 	private int protocolVersion;
 	private String host;
@@ -47,11 +47,4 @@ public class HandshakePacket implements Packet {
 		nextState = State.getById(netByteBuf.readVarInt());
 	}
 
-	@Override
-	public void writeSelf(NetByteBuf netByteBuf) {
-		netByteBuf.writeVarInt(protocolVersion);
-		netByteBuf.writeString(host);
-		netByteBuf.writeShort(port);
-		netByteBuf.writeVarInt(nextState.getId());
-	}
 }

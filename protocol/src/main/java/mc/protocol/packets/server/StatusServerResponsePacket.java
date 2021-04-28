@@ -2,7 +2,7 @@ package mc.protocol.packets.server;
 
 import lombok.Data;
 import mc.protocol.io.NetByteBuf;
-import mc.protocol.packets.Packet;
+import mc.protocol.packets.ServerSidePacket;
 
 /**
  * Status server packet, response.
@@ -19,7 +19,7 @@ import mc.protocol.packets.Packet;
  * </pre></p>
  */
 @Data
-public class StatusServerResponse implements Packet {
+public class StatusServerResponsePacket implements ServerSidePacket {
 
 	/**
 	 * Информация о серере в формате JSON
@@ -49,11 +49,6 @@ public class StatusServerResponse implements Packet {
 	 * </pre>
 	 */
 	private String info;
-
-	@Override
-	public void readSelf(NetByteBuf netByteBuf) {
-		info = netByteBuf.readString();
-	}
 
 	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {

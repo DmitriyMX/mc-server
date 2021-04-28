@@ -3,7 +3,7 @@ package mc.protocol.packets.server;
 import lombok.Data;
 import mc.protocol.State;
 import mc.protocol.io.NetByteBuf;
-import mc.protocol.packets.Packet;
+import mc.protocol.packets.ServerSidePacket;
 
 /**
  * Diconnect packet.
@@ -21,7 +21,7 @@ import mc.protocol.packets.Packet;
  * @see State
  */
 @Data
-public class DisconnectPacket implements Packet {
+public class DisconnectPacket implements ServerSidePacket {
 
 	/**
 	 * Причина отключения.
@@ -34,11 +34,6 @@ public class DisconnectPacket implements Packet {
 	 * </pre>
 	 */
 	private String reason;
-
-	@Override
-	public void readSelf(NetByteBuf netByteBuf) {
-		this.reason = netByteBuf.readString();
-	}
 
 	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {

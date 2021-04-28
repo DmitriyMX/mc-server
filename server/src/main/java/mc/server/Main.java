@@ -6,9 +6,9 @@ import mc.protocol.ProtocolConstant;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
-import mc.protocol.packets.client.StatusServerRequest;
+import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.StatusServerResponse;
+import mc.protocol.packets.server.StatusServerResponsePacket;
 import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
@@ -45,10 +45,10 @@ public class Main {
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
 				.subscribe(channel -> channel.getCtx().writeAndFlush(channel.getPacket()).channel().disconnect());
 
-		server.packetFlux(StatusServerRequest.class)
+		server.packetFlux(StatusServerRequestPacket.class)
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
 				.subscribe(channel -> {
-					StatusServerResponse response = new StatusServerResponse();
+					StatusServerResponsePacket response = new StatusServerResponsePacket();
 					response.setInfo("{\n" +
 							"  \"version\": {\n" +
 							"    \"name\": \"" + ProtocolConstant.PROTOCOL_NAME + "\",\n" +

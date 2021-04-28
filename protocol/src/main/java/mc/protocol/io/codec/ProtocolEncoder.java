@@ -7,17 +7,16 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import mc.protocol.NetworkAttributes;
 import mc.protocol.State;
 import mc.protocol.io.NetByteBuf;
-import mc.protocol.packets.Packet;
-import mc.protocol.packets.PacketDirection;
+import mc.protocol.packets.ServerSidePacket;
 
 import java.util.Objects;
 
-public class ProtocolEncoder extends MessageToByteEncoder<Packet> {
+public class ProtocolEncoder extends MessageToByteEncoder<ServerSidePacket> {
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) {
+	protected void encode(ChannelHandlerContext ctx, ServerSidePacket packet, ByteBuf out) {
 		State state = ctx.channel().attr(NetworkAttributes.STATE).get();
-		int packetId = Objects.requireNonNull(state.getIdByPacket(PacketDirection.CLIENT_BOUND, packet.getClass()));
+		int packetId = Objects.requireNonNull(state.getServerSidePacketId(packet.getClass()));
 
 		NetByteBuf buffer = new NetByteBuf(Unpooled.buffer());
 		buffer.writeVarInt(packetId);

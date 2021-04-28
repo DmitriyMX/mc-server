@@ -8,8 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NetworkAttributes;
 import mc.protocol.State;
 import mc.protocol.io.NetByteBuf;
-import mc.protocol.packets.Packet;
-import mc.protocol.packets.PacketDirection;
+import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 		NetByteBuf netByteBuf = new NetByteBuf(in);
 
 		int packetId = netByteBuf.readVarInt();
-		Class<? extends Packet> packetClass = state.getPacketById(PacketDirection.SERVER_BOUND, packetId);
+		Class<? extends ClientSidePacket> packetClass = state.getClientSidePacketById(packetId);
 		if (packetClass == null) {
 			log.warn("Unkown packet: State {} ; Id {}", state, packetId);
 
@@ -51,7 +50,7 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 				netByteBuf.skipBytes(netByteBuf.readableBytes());
 			}
 		} else {
-			Packet packet = packetClass.getDeclaredConstructor().newInstance();
+			ClientSidePacket packet = packetClass.getDeclaredConstructor().newInstance();
 			packet.readSelf(netByteBuf);
 			out.add(packet);
 		}

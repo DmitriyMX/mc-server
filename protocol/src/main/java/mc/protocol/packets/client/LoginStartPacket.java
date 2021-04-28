@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import mc.protocol.io.NetByteBuf;
-import mc.protocol.packets.Packet;
+import mc.protocol.packets.ClientSidePacket;
 
 /**
  * Login start packet.
@@ -25,7 +25,7 @@ import mc.protocol.packets.Packet;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class LoginStartPacket implements Packet {
+public class LoginStartPacket implements ClientSidePacket {
 
 	private String name;
 
@@ -34,8 +34,4 @@ public class LoginStartPacket implements Packet {
 		this.name = netByteBuf.readString();
 	}
 
-	@Override
-	public void writeSelf(NetByteBuf netByteBuf) {
-		netByteBuf.writeString(name);
-	}
 }
