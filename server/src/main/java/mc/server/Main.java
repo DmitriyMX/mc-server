@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyServer;
 import mc.protocol.ProtocolConstant;
 import mc.protocol.model.ServerInfo;
+import mc.protocol.model.text.Text;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
@@ -61,7 +62,7 @@ public class Main {
 					serverInfo.players().max(config.players().maxOnlile());
 					serverInfo.players().online(config.players().onlile());
 					serverInfo.players().sample(Collections.emptyList());
-					serverInfo.description(config.motd());
+					serverInfo.description(Text.of(config.motd()));
 
 					if (config.iconPath() != null) {
 						serverInfo.favicon(faviconToBase64(config.iconPath()));
@@ -77,7 +78,7 @@ public class Main {
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
 				.subscribe(channel -> {
 					DisconnectPacket disconnectPacket = new DisconnectPacket();
-					disconnectPacket.setReason("Server is not available.");
+					disconnectPacket.setReason(Text.of("Server is not available."));
 
 					channel.getCtx().writeAndFlush(disconnectPacket).channel().disconnect();
 				});

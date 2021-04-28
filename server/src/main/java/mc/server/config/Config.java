@@ -3,9 +3,11 @@ package mc.server.config;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.nio.file.Path;
 
+@Accessors(fluent = true)
 @Getter
 @Setter
 @ToString
