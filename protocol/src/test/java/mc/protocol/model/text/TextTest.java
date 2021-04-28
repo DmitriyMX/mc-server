@@ -1,9 +1,10 @@
 package mc.protocol.model.text;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TextTest {
 
@@ -20,31 +21,12 @@ class TextTest {
 		Text actual;
 		Text expected;
 
-		actual = Text.builder().append("123").build();
-		expected = new Text("123", null);
+		actual = Text.builder().append(Text.of("123")).build();
+		expected = new Text(null, null, "123", null);
 		assertEquals(expected, actual);
 
-		actual = Text.builder().append("123").append("456").build();
-		expected = new Text("123456", null);
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void childrenTest() {
-		Text actual;
-		Text expected;
-
-		actual = Text.builder().append("123").append((Text) null).build();
-		expected = new Text("123", null);
-		assertEquals(expected, actual);
-
-		actual = Text.builder().append("123").append(Text.EMPTY).build();
-		expected = new Text("123", null);
-		assertEquals(expected, actual);
-
-		Text child = Text.of("456");
-		actual = Text.builder().append("123").append(child).build();
-		expected = new Text("123", ImmutableList.of(child));
+		actual = Text.builder().append(Text.of("123")).append(Text.of("456")).build();
+		expected = new Text(null, null, "123", List.of(Text.of("456")));
 		assertEquals(expected, actual);
 	}
 }

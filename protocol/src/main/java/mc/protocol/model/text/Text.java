@@ -1,10 +1,11 @@
 package mc.protocol.model.text;
 
-import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 @EqualsAndHashCode
 @ToString
@@ -12,16 +13,32 @@ public class Text {
 
 	public static final Text EMPTY = of("");
 
+	private TextColor color;
+	private TextStyle style;
 	private String content;
-	private ImmutableList<Text> children;
+	private List<Text> children;
 
-	Text(String content, ImmutableList<Text> children) {
+	Text(TextColor color, TextStyle style, String content, List<Text> children) {
+		this.color = color;
+		this.style = style;
 		this.content = content;
 		this.children = children;
 	}
 
 	public static Text of(String content) {
-		return new Text(content, null);
+		return new Text(null, null, content, null);
+	}
+
+	public static Text of(TextColor color, String content) {
+		return new Text(color, null, content, null);
+	}
+
+	public static Text of(TextStyle style, String content) {
+		return new Text(null, style, content, null);
+	}
+
+	public static Text of(TextColor color, TextStyle style, String content) {
+		return new Text(color, style, content, null);
 	}
 
 	public static Text.Builder builder() {
@@ -29,12 +46,7 @@ public class Text {
 	}
 
 	public static class Builder {
-		private final LinkedList<Object> chain = new LinkedList<>();
-
-		public Builder append(String content) {
-			chain.add(content);
-			return this;
-		}
+		private final LinkedList<Text> chain = new LinkedList<>();
 
 		public Builder append(Text text) {
 			if (text == null || EMPTY.equals(text)) {
@@ -50,28 +62,14 @@ public class Text {
 				return EMPTY;
 			}
 
-			StringBuilder contentBuilder = null;
-			ImmutableList.Builder<Text> childrenBuilder = null;
+			Text rootText = chain.pollFirst();
 
-			for (Object element : chain) {
-				if (element instanceof String) {
-					if (contentBuilder == null) {
-						contentBuilder = new StringBuilder((String) element);
-					} else {
-						contentBuilder.append((String) element);
-					}
-				} else if (element instanceof Text) {
-					if (childrenBuilder == null) {
-						childrenBuilder = ImmutableList.builder();
-					}
-
-					childrenBuilder.add((Text) element);
-				}
+			if (!chain.isEmpty()) {
+				rootText.children = new ArrayList<>();
+				rootText.children.addAll(chain);
 			}
 
-			return new Text(
-					contentBuilder == null ? null : contentBuilder.toString(),
-					childrenBuilder == null ? null : childrenBuilder.build());
+			return rootText;
 		}
 	}
 }
