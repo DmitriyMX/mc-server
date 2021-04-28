@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.LinkedList;
+
 @EqualsAndHashCode
 @ToString
 public class Text {
@@ -27,15 +29,10 @@ public class Text {
 	}
 
 	public static class Builder {
-		private String content;
-		private ImmutableList.Builder<Text> childrenBuilder;
+		private final LinkedList<Object> chain = new LinkedList<>();
 
 		public Builder append(String content) {
-			if (this.content == null) {
-				this.content = content;
-			} else {
-				this.content += content;
-			}
+			chain.add(content);
 			return this;
 		}
 
@@ -44,21 +41,37 @@ public class Text {
 				return this;
 			}
 
-			if (this.childrenBuilder == null) {
-				this.childrenBuilder = ImmutableList.builder();
-			}
-
-			this.childrenBuilder.add(text);
+			chain.add(text);
 			return this;
 		}
 
 		public Text build() {
-			if (content == null && childrenBuilder == null) {
+			if (chain.isEmpty()) {
 				return EMPTY;
-			} else {
-				return new Text(content,
-						childrenBuilder == null ? null : childrenBuilder.build());
 			}
+
+			StringBuilder contentBuilder = null;
+			ImmutableList.Builder<Text> childrenBuilder = null;
+
+			for (Object element : chain) {
+				if (element instanceof String) {
+					if (contentBuilder == null) {
+						contentBuilder = new StringBuilder((String) element);
+					} else {
+						contentBuilder.append((String) element);
+					}
+				} else if (element instanceof Text) {
+					if (childrenBuilder == null) {
+						childrenBuilder = ImmutableList.builder();
+					}
+
+					childrenBuilder.add((Text) element);
+				}
+			}
+
+			return new Text(
+					contentBuilder == null ? null : contentBuilder.toString(),
+					childrenBuilder == null ? null : childrenBuilder.build());
 		}
 	}
 }
