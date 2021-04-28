@@ -10,7 +10,7 @@ import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.StatusServerResponsePacket;
+import mc.protocol.packets.server.StatusServerResponse;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public enum State {
 			),
 			// server side
 			Map.of(
-					StatusServerResponsePacket.class, 0x00,
+					StatusServerResponse.class, 0x00,
 					PingPacket.class, 0x01
 			)
 	),

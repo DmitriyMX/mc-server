@@ -3,18 +3,20 @@ package mc.server;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyServer;
 import mc.protocol.ProtocolConstant;
+import mc.protocol.model.ServerInfo;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.StatusServerResponsePacket;
+import mc.protocol.packets.server.StatusServerResponse;
 import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
 import mc.server.di.ServerComponent;
 
 import java.nio.file.Paths;
+import java.util.Collections;
 
 @Slf4j
 public class Main {
@@ -48,21 +50,16 @@ public class Main {
 		server.packetFlux(StatusServerRequestPacket.class)
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
 				.subscribe(channel -> {
-					StatusServerResponsePacket response = new StatusServerResponsePacket();
-					response.setInfo("{\n" +
-							"  \"version\": {\n" +
-							"    \"name\": \"" + ProtocolConstant.PROTOCOL_NAME + "\",\n" +
-							"    \"protocol\": " + ProtocolConstant.PROTOCOL_NUMBER + "\n" +
-							"  },\n" +
-							"  \"players\": {\n" +
-							"    \"max\": " + config.players().maxOnlile() + ",\n" +
-							"    \"online\": " + config.players().onlile() + ",\n" +
-							"    \"sample\": []\n" +
-							"  },\n" +
-							"  \"description\": {\n" +
-							"    \"text\": \"" + config.motd() + "\"\n" +
-							"  }\n" +
-							"}");
+					ServerInfo serverInfo = new ServerInfo();
+					serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
+					serverInfo.version().protocol(ProtocolConstant.PROTOCOL_NUMBER);
+					serverInfo.players().max(config.players().maxOnlile());
+					serverInfo.players().online(config.players().onlile());
+					serverInfo.players().sample(Collections.emptyList());
+					serverInfo.description(config.motd());
+
+					StatusServerResponse response = new StatusServerResponse();
+					response.setInfo(serverInfo);
 
 					channel.getCtx().writeAndFlush(response);
 				});
@@ -71,9 +68,7 @@ public class Main {
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
 				.subscribe(channel -> {
 					DisconnectPacket disconnectPacket = new DisconnectPacket();
-					disconnectPacket.setReason("{\n" +
-							"  \"text\": \"Server is not available.\"\n" +
-							"}");
+					disconnectPacket.setReason("Server is not available.");
 
 					channel.getCtx().writeAndFlush(disconnectPacket).channel().disconnect();
 				});

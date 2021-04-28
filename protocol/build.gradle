@@ -4,6 +4,7 @@ dependencies {
     implementation libs.netty
     implementation libs.reactor
     implementation libs.guava
+    implementation libs.json
 
     testImplementation libs.lang3
 }

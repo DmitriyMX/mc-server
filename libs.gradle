@@ -15,7 +15,8 @@ ext {
             lang3      : 'org.apache.commons:commons-lang3:3.11',
             netty      : 'io.netty:netty-all:4.1.22.Final',
             reactor    : 'io.projectreactor:reactor-core:3.4.5',
-            yaml       : 'org.yaml:snakeyaml:1.28'
+            yaml       : 'org.yaml:snakeyaml:1.28',
+            json       : 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
     ]
 
     libs.logger = [
