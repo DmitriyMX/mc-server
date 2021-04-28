@@ -9,5 +9,5 @@ players:
   online: 0
 
 icon:
-  enable: false
-  path: favicon.png
+  enable: true
+  path: src/main/resources/favicon.png

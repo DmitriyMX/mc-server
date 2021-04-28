@@ -48,6 +48,8 @@ import java.util.stream.Collector;
  *     "favicon": "data:image/png;base64,&lt;data&gt;"
  * }
  * </pre>
+ *
+ * <p><code>`$.favicon`</code> должен быть формата PNG и размеры 64x64 px</p>
  */
 @Data
 public class StatusServerResponse implements ServerSidePacket {
@@ -59,11 +61,16 @@ public class StatusServerResponse implements ServerSidePacket {
 
 	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {
-		netByteBuf.writeString(Json.object()
+		JsonObject jsonObject = Json.object()
 				.add("version", createVersionObj())
 				.add("players", createPlayersObj())
-				.add("description", Json.object().add("text", info.description()))
-				.toString());
+				.add("description", Json.object().add("text", info.description()));
+
+		if (info.favicon() != null && !info.favicon().isEmpty()) {
+			jsonObject.add("favicon", info.favicon());
+		}
+
+		netByteBuf.writeString(jsonObject.toString());
 	}
 
 	private JsonObject createVersionObj() {

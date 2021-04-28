@@ -14,8 +14,13 @@ import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
 import mc.server.di.ServerComponent;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collections;
 
 @Slf4j
@@ -58,6 +63,10 @@ public class Main {
 					serverInfo.players().sample(Collections.emptyList());
 					serverInfo.description(config.motd());
 
+					if (config.iconPath() != null) {
+						serverInfo.favicon(faviconToBase64(config.iconPath()));
+					}
+
 					StatusServerResponse response = new StatusServerResponse();
 					response.setInfo(serverInfo);
 
@@ -74,5 +83,16 @@ public class Main {
 				});
 
 		server.bind(config.server().host(), config.server().port());
+	}
+
+	private static String faviconToBase64(Path iconPath) {
+		try {
+			return "data:image/png;base64," +
+					Base64.getEncoder().encodeToString(
+							IOUtils.toByteArray(Files.newInputStream(iconPath)));
+		} catch (IOException e) {
+			log.error("Can't read icon '{}'", iconPath.toAbsolutePath(), e);
+			return "";
+		}
 	}
 }
