@@ -1,5 +1,6 @@
 //file:noinspection GrUnresolvedAccess
 apply plugin: 'java'
+apply plugin: 'java-library'
 apply from: rootDir.toPath().resolve('libs.gradle').toFile()
 
 String getProperty1(String propertyName1, String propertyName2) {

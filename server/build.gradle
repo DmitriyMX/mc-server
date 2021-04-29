@@ -4,6 +4,10 @@
  */
 
 //file:noinspection GrUnresolvedAccess
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
 apply from: rootDir.toPath().resolve('logic.gradle').toFile()
 apply plugin: 'application'
 
@@ -16,10 +20,13 @@ dependencies {
 
     implementation libs.logger.logback
 
-    implementation libs.netty
-    implementation libs.reactor
-    implementation libs.guava
     implementation libs.yaml
     implementation libs.ioutils
     implementation libs.jopt
+}
+
+shadowJar {
+    archiveBaseName.set(jar.archiveBaseName.get())
+    archiveVersion.set(project.version as String)
+    archiveClassifier.set('')
 }

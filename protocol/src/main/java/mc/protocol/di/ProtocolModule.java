@@ -1,6 +1,5 @@
 package mc.protocol.di;
 
-import com.google.common.collect.ImmutableMap;
 import dagger.Module;
 import dagger.Provides;
 import io.netty.bootstrap.ServerBootstrap;
@@ -22,9 +21,11 @@ import mc.protocol.io.codec.ProtocolSplitter;
 import mc.protocol.packets.Packet;
 import reactor.core.publisher.Sinks;
 
+import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Module
@@ -54,7 +55,7 @@ public class ProtocolModule {
 
 		return new ChannelInitializer<>() {
 			@Override
-			protected void initChannel(SocketChannel socketChannel) {
+			protected void initChannel(@Nonnull SocketChannel socketChannel) {
 				ChannelPipeline pipeline = socketChannel.pipeline();
 				channelHandlerMapProvider.get().forEach(pipeline::addLast);
 			}
@@ -81,12 +82,8 @@ public class ProtocolModule {
 	@Provides
 	@ServerScope
 	Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> provideObservedMap() {
-		ImmutableMap.Builder<Class<? extends Packet>, Sinks.Many<ChannelContext>> builder = ImmutableMap.builder();
-
-		Stream.of(State.values())
+		return Stream.of(State.values())
 				.flatMap(state -> state.getClientSidePackets().values().stream())
-				.forEach(packetClass -> builder.put(packetClass, Sinks.many().multicast().directBestEffort()));
-
-		return builder.build();
+				.collect(Collectors.toMap(packetClass -> packetClass, v -> Sinks.many().multicast().directBestEffort()));
 	}
 }

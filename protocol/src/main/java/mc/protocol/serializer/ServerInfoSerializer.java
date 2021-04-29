@@ -3,11 +3,13 @@ package mc.protocol.serializer;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import com.google.common.collect.Streams;
 import lombok.experimental.UtilityClass;
 import mc.protocol.model.ServerInfo;
 
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collector;
+import java.util.stream.StreamSupport;
 
 @UtilityClass
 public class ServerInfoSerializer {
@@ -45,7 +47,9 @@ public class ServerInfoSerializer {
 	}
 
 	private static JsonArray jsonArrayAddAll(JsonArray jsonArrayTo, JsonArray jsonArrayFrom) {
-		Streams.stream(jsonArrayFrom).forEach(jsonArrayTo::add);
+		StreamSupport.stream(
+				Spliterators.spliteratorUnknownSize(jsonArrayFrom.iterator(), Spliterator.ORDERED), false)
+				.forEach(jsonArrayTo::add);
 		return jsonArrayTo;
 	}
 }
