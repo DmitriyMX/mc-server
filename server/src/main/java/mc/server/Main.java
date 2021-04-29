@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyServer;
 import mc.protocol.ProtocolConstant;
 import mc.protocol.model.ServerInfo;
-import mc.protocol.model.text.Text;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
@@ -78,7 +77,7 @@ public class Main {
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
 				.subscribe(channel -> {
 					DisconnectPacket disconnectPacket = new DisconnectPacket();
-					disconnectPacket.setReason(Text.of("Server is not available."));
+					disconnectPacket.setReason(TextSerializer.fromPlain(config.disconnectReason()));
 
 					channel.getCtx().writeAndFlush(disconnectPacket).channel().disconnect();
 				});

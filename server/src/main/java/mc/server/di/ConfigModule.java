@@ -28,6 +28,7 @@ public class ConfigModule {
 		config.server().host(fromYamlPath("server/host", map, "127.0.0.1"));
 		config.server().port(fromYamlPath("server/port", map, 25565));
 		config.motd(fromYamlPath("motd", map, ""));
+		config.disconnectReason(fromYamlPath("disconnect-reason", map, ""));
 		config.players().maxOnlile(fromYamlPath("players/max-online", map, 0));
 		config.players().onlile(fromYamlPath("players/online", map, 0));
 

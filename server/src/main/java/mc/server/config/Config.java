@@ -17,6 +17,7 @@ public class Config {
 	private final Players players = new Players();
 
 	private String motd;
+	private String disconnectReason;
 	private Path iconPath;
 
 	@Getter

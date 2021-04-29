@@ -6,6 +6,8 @@ motd: |
   &bmc-project &8:: &4ZERO
   &8develop by &7DmitriyMX
 
+disconnect-reason: '&4Server is not available.'
+
 players:
   max-online: 0
   online: 0
