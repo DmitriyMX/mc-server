@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +45,20 @@ public class Text {
 	@ToString
 	public static class Builder {
 
+		@Getter(onMethod = @__(@Nullable))
 		private StringBuilder contentBuilder;
 		private TextStyle.Builder styleBuilder;
 		private TextColor color;
 		private List<Text> children;
+
+		public Builder append(char content) {
+			if (this.contentBuilder == null) {
+				this.contentBuilder = new StringBuilder();
+			}
+
+			this.contentBuilder.append(content);
+			return this;
+		}
 
 		public Builder append(String content) {
 			if (this.contentBuilder == null) {
