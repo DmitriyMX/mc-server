@@ -4,12 +4,8 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(builderClassName = "Builder")
 @Accessors(fluent = true)
-@Getter
-@Setter(AccessLevel.PACKAGE)
-@EqualsAndHashCode
-@ToString
+@Data
 @SuppressWarnings("java:S1845")
 public class TextStyle {
 
@@ -28,11 +24,59 @@ public class TextStyle {
 	private Boolean strikethrough;
 	private Boolean obfuscated;
 
-	void merge(TextStyle style) {
-		if (style.bold != null) this.bold = style.bold;
-		if (style.italic != null) this.italic = style.italic;
-		if (style.underline != null) this.underline = style.underline;
-		if (style.strikethrough != null) this.strikethrough = style.strikethrough;
-		if (style.obfuscated != null) this.obfuscated = style.obfuscated;
+	public static Builder builder() {
+		return new TextStyle.Builder();
+	}
+
+	@NoArgsConstructor
+	@ToString
+	public static class Builder {
+
+		private Boolean bold;
+		private Boolean italic;
+		private Boolean underline;
+		private Boolean strikethrough;
+		private Boolean obfuscated;
+
+		public Builder bold(Boolean bold) {
+			this.bold = bold;
+			return this;
+		}
+
+		public Builder italic(Boolean italic) {
+			this.italic = italic;
+			return this;
+		}
+
+		public Builder underline(Boolean underline) {
+			this.underline = underline;
+			return this;
+		}
+
+		public Builder strikethrough(Boolean strikethrough) {
+			this.strikethrough = strikethrough;
+			return this;
+		}
+
+		public Builder obfuscated(Boolean obfuscated) {
+			this.obfuscated = obfuscated;
+			return this;
+		}
+
+		public Builder merge(TextStyle style) {
+			//@formatter:off
+			if (style.bold != null) this.bold = style.bold;
+			if (style.italic != null) this.italic = style.italic;
+			if (style.underline != null) this.underline = style.underline;
+			if (style.strikethrough != null) this.strikethrough = style.strikethrough;
+			if (style.obfuscated != null) this.obfuscated = style.obfuscated;
+			//@formatter:on
+
+			return this;
+		}
+
+		public TextStyle build() {
+			return new TextStyle(bold, italic, underline, strikethrough, obfuscated);
+		}
 	}
 }

@@ -20,10 +20,9 @@ public enum TextColor {
 	GREEN      ("green",       'a'),
 	AQUA       ("aqua",        'b'),
 	RED        ("red",         'c'),
-	PUEPLE     ("light_purple",'d'),
+	PURPLE     ("light_purple",'d'),
 	YELLOW     ("yellow",      'e'),
-	WHITE      ("white",       'f'),
-	RESET      ("reset",       'r');
+	WHITE      ("white",       'f');
 	//@formatter:on
 
 	private final String name;
