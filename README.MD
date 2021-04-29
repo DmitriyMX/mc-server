@@ -12,6 +12,14 @@
 
 ## Запуск
 
+### Gradle
+
 ```shell
-gradle :server:run
+gradle :server:run --args="--config=config.yml" --project-prop jvmArgs="-Dlogback.configurationFile=logback.xml"
+```
+
+### Jar
+
+```shell
+java -Dlogback.configurationFile=logback.xml -jar server.jar --config=config.yml
 ```

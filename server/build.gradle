@@ -13,6 +13,10 @@ apply plugin: 'application'
 
 application {
     mainClassName = 'mc.server.Main'
+
+    if (project.hasProperty('jvmArgs')) {
+        applicationDefaultJvmArgs = List.of((project.jvmArgs as String).split('\\s+'))
+    }
 }
 
 dependencies {

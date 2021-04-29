@@ -12,6 +12,7 @@ players:
   max-online: 0
   online: 0
 
+# Размер значка: 64x64 px
 icon:
-  enable: true
-  path: src/main/resources/favicon.png
+  enable: false
+  path: favicon.png
