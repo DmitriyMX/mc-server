@@ -14,6 +14,7 @@ import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
 import mc.protocol.packets.server.StatusServerResponse;
+import mc.protocol.serializer.TextSerializer;
 import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
@@ -61,7 +62,7 @@ public class Main {
 					serverInfo.players().max(config.players().maxOnlile());
 					serverInfo.players().online(config.players().onlile());
 					serverInfo.players().sample(Collections.emptyList());
-					serverInfo.description(Text.of(config.motd()));
+					serverInfo.description(TextSerializer.fromPlain(config.motd()));
 
 					if (config.iconPath() != null) {
 						serverInfo.favicon(faviconToBase64(config.iconPath()));
