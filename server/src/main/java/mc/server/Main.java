@@ -1,5 +1,8 @@
 package mc.server;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.util.PathConverter;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyServer;
 import mc.protocol.ProtocolConstant;
@@ -23,19 +26,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 public class Main {
 
-	public static void main(String[] args) {
+	private void run(OptionSet optionSet) {
 		log.info("mc-project launch");
 
-		ConfigModule configModule;
-		if (args.length > 0) {
-			configModule = new ConfigModule(Paths.get(args[0]));
-		} else {
-			configModule = new ConfigModule(Paths.get("config.yml"));
-		}
+		ConfigModule configModule = new ConfigModule((Path) optionSet.valueOf("config"));
 
 		ServerComponent serverComponent = DaggerServerComponent.builder()
 				.configModule(configModule)
@@ -84,6 +83,42 @@ public class Main {
 				});
 
 		server.bind(config.server().host(), config.server().port());
+	}
+
+	@SuppressWarnings("java:S106")
+	public static void main(String[] args) {
+		OptionParser optionParser = createOptionParser();
+		OptionSet optionSet = optionParser.parse(args);
+
+		if (optionSet.has("help")) {
+			try {
+				optionParser.printHelpOn(System.out);
+			} catch (IOException e) {
+				System.err.printf("Can't print help page: %s%n", e.getMessage());
+				e.printStackTrace(System.err);
+			}
+			return;
+		}
+
+		if (log.isDebugEnabled()) {
+			optionSet.asMap().forEach((optionSpec, objects) -> {
+				if (optionSpec.isForHelp()) return;
+				log.debug("OptionSet | {} = {}", optionSpec.options(), objects);
+			});
+		}
+
+		new Main().run(optionSet);
+	}
+
+	private static OptionParser createOptionParser() {
+		OptionParser optionParser = new OptionParser();
+		optionParser.acceptsAll(List.of("h", "help"), "Help page").forHelp();
+		optionParser.accepts("config", "Path to configuration file")
+				.withRequiredArg()
+				.withValuesConvertedBy(new PathConverter())
+				.defaultsTo(Paths.get("config.yml"));
+
+		return optionParser;
 	}
 
 	private static String faviconToBase64(Path iconPath) {

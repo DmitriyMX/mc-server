@@ -21,4 +21,5 @@ dependencies {
     implementation libs.guava
     implementation libs.yaml
     implementation libs.ioutils
+    implementation libs.jopt
 }
