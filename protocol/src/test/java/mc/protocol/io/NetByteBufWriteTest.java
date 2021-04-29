@@ -50,15 +50,15 @@ class NetByteBufWriteTest {
 
 	@ParameterizedTest
 	@MethodSource("paramsWriteString")
-	void writeString(String string) {
+	void writeString(String string, int exceptedLength) {
 		ByteBuf byteBuf = Unpooled.buffer();
 		NetByteBuf netByteBuf = new NetByteBuf(byteBuf);
 
 		netByteBuf.writeString(string);
 
 		byte[] actualArray = netByteBuf.copy(0, netByteBuf.readableBytes()).array();
-		int length = actualArray[0]; // допустим, что размер поместился в один байт
-		assertEquals(string.codePoints().count(), length);
+		int actualLength = actualArray[0]; // допустим, что размер поместился в один байт
+		assertEquals(exceptedLength, actualLength);
 
 		byte[] dataBytes = new byte[actualArray.length - 1];
 		System.arraycopy(actualArray, 1, dataBytes, 0, dataBytes.length);
@@ -196,12 +196,16 @@ class NetByteBufWriteTest {
 	@SuppressWarnings("unused")
 	private static Stream<Arguments> paramsWriteString() {
 		return Stream.of(
-				Arguments.of(""),
-				Arguments.of("Latin"),
-				Arguments.of("Кириллица"),
-				Arguments.of("العربية"),
-				Arguments.of("ﬦﬣﬡ"), // Алфавитные формы представления
-				Arguments.of("\uD800\uDD07") // Эгейские цифры, [один]
+				Arguments.of("", 0),
+				Arguments.of("Latin", 5),
+				Arguments.of("Кириллица", 37),
+				// (9) -> "РљРёСЂРёР»Р»РёС†Р°"(18) => 18*2=36 (37?)
+				Arguments.of("العربية", 30),
+				// (7) -> "Ш§Щ„Ш№Ш±ШЁЩЉШ©"(14) => 14*2=28 (30?)
+				Arguments.of("ﬦﬣﬡ", 18), // Алфавитные формы представления
+				// (3) -> "п¬¦п¬Јп¬Ў"(9) => 9*2=18
+				Arguments.of("\uD800\uDD07", 4) // Эгейские цифры, [один]
+				// (1) -> "𐄇" => ...4!
 		);
 	}
 

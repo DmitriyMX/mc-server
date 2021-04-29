@@ -93,19 +93,16 @@ public class NetByteBuf extends ByteBuf {
 	}
 
 	public void writeString(String string) {
-		byte[] buf;
-		int length = (int) string.codePoints().count();
+		byte[] buf = string.getBytes(StandardCharsets.UTF_8);
 
-		if (length > Short.MAX_VALUE) {
-			log.warn("String is too long: {} > {}", length, Short.MAX_VALUE);
-			buf = string.substring(0, Short.MAX_VALUE).getBytes(StandardCharsets.UTF_8);
+		if (buf.length > Short.MAX_VALUE) {
+			log.warn("String is too long: {} > {}", buf.length, Short.MAX_VALUE);
 			writeVarInt(Short.MAX_VALUE);
+			writeBytes(buf, 0, Short.MAX_VALUE);
 		} else {
-			buf = string.getBytes(StandardCharsets.UTF_8);
-			writeVarInt(length);
+			writeVarInt(buf.length);
+			writeBytes(buf);
 		}
-
-		writeBytes(buf);
 	}
 	//endregion
 
