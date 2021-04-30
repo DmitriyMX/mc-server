@@ -21,20 +21,25 @@ import mc.server.di.ServerComponent;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
+@SuppressWarnings("java:S106")
 public class Main {
+	private static final String CLI_CONFIG = "config";
 
 	private void run(OptionSet optionSet) {
 		log.info("mc-project launch");
 
-		ConfigModule configModule = new ConfigModule((Path) optionSet.valueOf("config"));
+		ConfigModule configModule = new ConfigModule((Path) optionSet.valueOf(CLI_CONFIG));
 
 		ServerComponent serverComponent = DaggerServerComponent.builder()
 				.configModule(configModule)
@@ -85,8 +90,7 @@ public class Main {
 		server.bind(config.server().host(), config.server().port());
 	}
 
-	@SuppressWarnings("java:S106")
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		OptionParser optionParser = createOptionParser();
 		OptionSet optionSet = optionParser.parse(args);
 
@@ -97,6 +101,25 @@ public class Main {
 				System.err.printf("Can't print help page: %s%n", e.getMessage());
 				e.printStackTrace(System.err);
 			}
+			return;
+		} else if (optionSet.has("init")) {
+			Path configPath = (Path) optionSet.valueOf(CLI_CONFIG);
+			Path logbackPath = Paths.get(System.getProperty("logback.configurationFile", "logback.xml"));
+
+			if (!initializeCheckFiles(configPath, logbackPath)) {
+				return;
+			}
+
+			InputStream configResource = Objects.requireNonNull(Main.class.getResourceAsStream("/config-sample.yml"));
+			InputStream logbackResource = Objects.requireNonNull(Main.class.getResourceAsStream("/logback-sample.xml"));
+
+			try(OutputStream configOut = Files.newOutputStream(configPath);
+			    OutputStream logbackOut = Files.newOutputStream(logbackPath)) {
+				IOUtils.copy(configResource, configOut);
+				IOUtils.copy(logbackResource, logbackOut);
+			}
+
+			System.out.println("Initialization environment done.");
 			return;
 		}
 
@@ -113,10 +136,11 @@ public class Main {
 	private static OptionParser createOptionParser() {
 		OptionParser optionParser = new OptionParser();
 		optionParser.acceptsAll(List.of("h", "help"), "Help page").forHelp();
-		optionParser.accepts("config", "Path to configuration file")
+		optionParser.accepts(CLI_CONFIG, "Path to configuration file")
 				.withRequiredArg()
 				.withValuesConvertedBy(new PathConverter())
 				.defaultsTo(Paths.get("config.yml"));
+		optionParser.accepts("init", "Initialize environment");
 
 		return optionParser;
 	}
@@ -130,5 +154,17 @@ public class Main {
 			log.error("Can't read icon '{}'", iconPath.toAbsolutePath(), e);
 			return "";
 		}
+	}
+
+	private static boolean initializeCheckFiles(Path... paths) {
+		for (Path path : paths) {
+			if (Files.exists(path)) {
+				System.err.printf("File '%s' already exist. Initialization environment canceled.%n",
+						path.toAbsolutePath());
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
