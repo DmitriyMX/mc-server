@@ -1,0 +1,39 @@
+/*
+Запуск
+    gradle :server:run --args="--config=config.yml --logconfig==logback.xml"
+
+Сборка
+    gradle :server:shadowJar
+ */
+
+//file:noinspection GrUnresolvedAccess
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
+apply from: rootDir.toPath().resolve('logic.gradle').toFile()
+apply plugin: 'application'
+
+application {
+    mainClassName = 'mc.server.Main'
+
+    if (project.hasProperty('jvmArgs')) {
+        applicationDefaultJvmArgs = List.of((project.jvmArgs as String).split('\\s+'))
+    }
+}
+
+dependencies {
+    implementation project(':protocol')
+
+    implementation libs.logger.logback
+
+    implementation libs.yaml
+    implementation libs.ioutils
+    implementation libs.jopt
+}
+
+shadowJar {
+    archiveBaseName.set(jar.archiveBaseName.get())
+    archiveVersion.set(project.version as String)
+    archiveClassifier.set('')
+}
