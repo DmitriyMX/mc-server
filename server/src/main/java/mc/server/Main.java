@@ -1,5 +1,8 @@
 package mc.server;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
@@ -19,6 +22,7 @@ import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
 import mc.server.di.ServerComponent;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +39,7 @@ import java.util.Objects;
 @SuppressWarnings("java:S106")
 public class Main {
 	private static final String CLI_CONFIG = "config";
+	private static final String CLI_LOGCONFIG = "logconfig";
 
 	private void run(OptionSet optionSet) {
 		log.info("mc-project launch");
@@ -104,7 +109,7 @@ public class Main {
 			return;
 		} else if (optionSet.has("init")) {
 			Path configPath = (Path) optionSet.valueOf(CLI_CONFIG);
-			Path logbackPath = Paths.get(System.getProperty("logback.configurationFile", "logback.xml"));
+			Path logbackPath = (Path) optionSet.valueOf(CLI_LOGCONFIG);
 
 			if (!initializeCheckFiles(configPath, logbackPath)) {
 				return;
@@ -123,6 +128,8 @@ public class Main {
 			return;
 		}
 
+		reconfigureLogback(optionSet);
+
 		if (log.isDebugEnabled()) {
 			optionSet.asMap().forEach((optionSpec, objects) -> {
 				if (optionSpec.isForHelp()) return;
@@ -135,12 +142,19 @@ public class Main {
 
 	private static OptionParser createOptionParser() {
 		OptionParser optionParser = new OptionParser();
+
 		optionParser.acceptsAll(List.of("h", "help"), "Help page").forHelp();
+		optionParser.accepts("init", "Initialize environment");
+
 		optionParser.accepts(CLI_CONFIG, "Path to configuration file")
 				.withRequiredArg()
 				.withValuesConvertedBy(new PathConverter())
 				.defaultsTo(Paths.get("config.yml"));
-		optionParser.accepts("init", "Initialize environment");
+
+		optionParser.accepts(CLI_LOGCONFIG, "Path to logger configuratuin file")
+				.withRequiredArg()
+				.withValuesConvertedBy(new PathConverter())
+				.defaultsTo(Paths.get("logback.xml"));
 
 		return optionParser;
 	}
@@ -166,5 +180,21 @@ public class Main {
 		}
 
 		return true;
+	}
+
+	private static void reconfigureLogback(OptionSet optionSet) throws IOException {
+		LoggerContext logbackContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		logbackContext.reset();
+		JoranConfigurator configurator = new JoranConfigurator();
+
+		Path logbackPath = (Path) optionSet.valueOf(CLI_LOGCONFIG);
+		try(InputStream in = Objects.requireNonNull(
+				Files.newInputStream(logbackPath), "File not found: " + logbackPath.toAbsolutePath())) {
+
+			configurator.setContext(logbackContext);
+			configurator.doConfigure(in);
+		} catch (JoranException e) {
+			throw new IOException(e);
+		}
 	}
 }
