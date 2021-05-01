@@ -1,6 +1,9 @@
 /*
 Запуск
-    gradle :server:run
+    gradle :server:run --args="--config=config.yml --logconfig==logback.xml"
+
+Сборка
+    gradle :server:shadowJar
  */
 
 //file:noinspection GrUnresolvedAccess
