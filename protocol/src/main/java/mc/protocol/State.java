@@ -46,14 +46,15 @@ public enum State {
 			Map.of(
 					0x00, TeleportConfirmPacket.class,
 					0x04, ClientSettingsPacket.class,
-					0x09, PluginMessagePacket.class
+					0x09, PluginMessagePacket.class,
+					0x0E, CPlayerPositionAndLookPacket.class
 			),
 			// client bound
 			Map.of(
 					JoinGamePacket.class, 0x23,
 					SpawnPositionPacket.class, 0x46,
 					PlayerAbilitiesPacket.class,0x2C,
-					PlayerPositionAndLookPacket.class, 0x2F
+					SPlayerPositionAndLookPacket.class, 0x2F
 			)
 	);
 

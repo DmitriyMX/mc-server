@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
-import mc.protocol.packets.server.PlayerPositionAndLookPacket;
+import mc.protocol.packets.server.SPlayerPositionAndLookPacket;
 
 /**
  * Teleport сonfirm packet.
@@ -15,11 +15,11 @@ import mc.protocol.packets.server.PlayerPositionAndLookPacket;
  * <pre>
  * | FIELD       | TYPE   | NOTES                                                     |
  * |-------------|--------|-----------------------------------------------------------|
- * | Teleport ID | VarInt | ID, который был выдан пакетом {@link PlayerPositionAndLookPacket} |
+ * | Teleport ID | VarInt | ID, который был выдан пакетом {@link SPlayerPositionAndLookPacket} |
  * </pre>
  *
  * @see <a href="https://wiki.vg/index.php?title=Protocol&oldid=7368#Login_Start" target="_top">Login start</a>
- * @see PlayerPositionAndLookPacket
+ * @see SPlayerPositionAndLookPacket
  */
 @NoArgsConstructor
 @Getter

@@ -37,11 +37,11 @@ import mc.protocol.packets.client.TeleportConfirmPacket;
  * <p>Примечание от Dinnerbone про "Flags":</p>
  * <i>"It's a bitfield, X/Y/Z/Y_ROT/X_ROT. If X is set, the x value is relative and not absolute."</i>
  *
- * @see <a href="https://wiki.vg/index.php?title=Protocol&oldid=14204#Player_Position_And_Look_.28clientbound.29">Player Position And Look</a>
+ * @see <a href="https://wiki.vg/index.php?title=Protocol&oldid=14204#Player_Position_And_Look_.28clientbound.29">Player Position And Look (clientbound)</a>
  * @see TeleportConfirmPacket
  */
 @Data
-public class PlayerPositionAndLookPacket implements ServerSidePacket {
+public class SPlayerPositionAndLookPacket implements ServerSidePacket {
 
 	private Location position;
 	private Look look;

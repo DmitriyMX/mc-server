@@ -99,7 +99,7 @@ public class PacketHandler {
 
 		channel.getCtx().flush();
 
-		var playerPositionAndLookPacket = new PlayerPositionAndLookPacket();
+		var playerPositionAndLookPacket = new SPlayerPositionAndLookPacket();
 		playerPositionAndLookPacket.setPosition(spawnLocation);
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
 		playerPositionAndLookPacket.setTeleportId(random.nextInt());
