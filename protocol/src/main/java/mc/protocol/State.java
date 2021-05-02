@@ -7,10 +7,7 @@ import mc.protocol.packets.Packet;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.ServerSidePacket;
 import mc.protocol.packets.client.*;
-import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.JoinGamePacket;
-import mc.protocol.packets.server.LoginSuccessPacket;
-import mc.protocol.packets.server.StatusServerResponse;
+import mc.protocol.packets.server.*;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -51,7 +48,10 @@ public enum State {
 					0x09, PluginMessagePacket.class
 			),
 			// client bound
-			Map.of(JoinGamePacket.class, 0x23)
+			Map.of(
+					JoinGamePacket.class, 0x23,
+					SpawnPositionPacket.class, 0x46
+			)
 	);
 
 	@Nullable

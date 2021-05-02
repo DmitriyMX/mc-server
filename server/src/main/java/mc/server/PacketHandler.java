@@ -3,6 +3,7 @@ package mc.server;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.*;
+import mc.protocol.model.Location;
 import mc.protocol.model.ServerInfo;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
@@ -10,6 +11,7 @@ import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.JoinGamePacket;
 import mc.protocol.packets.server.LoginSuccessPacket;
+import mc.protocol.packets.server.SpawnPositionPacket;
 import mc.protocol.packets.server.StatusServerResponse;
 import mc.protocol.serializer.TextSerializer;
 import mc.server.config.Config;
@@ -77,6 +79,12 @@ public class PacketHandler {
 
 		log.info("{}", joinGamePacket);
 		channel.getCtx().write(joinGamePacket);
+
+		SpawnPositionPacket spawnPositionPacket = new SpawnPositionPacket();
+		spawnPositionPacket.setSpawn(new Location(0d, 63d, 0d));
+
+		log.info("{}", spawnPositionPacket);
+		channel.getCtx().write(spawnPositionPacket);
 
 		channel.getCtx().flush();
 	}
