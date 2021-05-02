@@ -6,6 +6,7 @@ import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.Packet;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.ServerSidePacket;
+import mc.protocol.packets.client.ClientSettingsPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
@@ -48,7 +49,7 @@ public enum State {
 	),
 	PLAY(3,
 			// server bound
-			Map.of(),
+			Map.of(0x04, ClientSettingsPacket.class),
 			// client bound
 			Map.of(JoinGamePacket.class, 0x23)
 	);
