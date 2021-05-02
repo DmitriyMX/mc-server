@@ -16,6 +16,8 @@ public class PacketInboundHandler extends SimpleChannelInboundHandler<Packet> {
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, Packet packet) {
-		observedMap.get(packet.getClass()).tryEmitNext(new ChannelContext<>(ctx, packet));
+		if (observedMap.containsKey(packet.getClass())) {
+			observedMap.get(packet.getClass()).tryEmitNext(new ChannelContext<>(ctx, packet));
+		}
 	}
 }
