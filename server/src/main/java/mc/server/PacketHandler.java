@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.*;
 import mc.protocol.model.Location;
+import mc.protocol.model.Look;
 import mc.protocol.model.ServerInfo;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
@@ -59,7 +60,7 @@ public class PacketHandler {
 	public void onLoginStart(ChannelContext<LoginStartPacket> channel) {
 		LoginStartPacket loginStartPacket = channel.getPacket();
 
-		LoginSuccessPacket loginSuccessPacket = new LoginSuccessPacket();
+		var loginSuccessPacket = new LoginSuccessPacket();
 		loginSuccessPacket.setUuid(UUID.randomUUID());
 		loginSuccessPacket.setName(loginStartPacket.getName());
 
@@ -67,7 +68,7 @@ public class PacketHandler {
 		channel.getCtx().writeAndFlush(loginSuccessPacket);
 		channel.setState(State.PLAY);
 
-		JoinGamePacket joinGamePacket = new JoinGamePacket();
+		var joinGamePacket = new JoinGamePacket();
 		joinGamePacket.setEntityId(random.nextInt());
 		joinGamePacket.setGameMode(GameMode.SPECTATOR);
 		joinGamePacket.setDimension(0/*Overworld*/);
@@ -77,13 +78,15 @@ public class PacketHandler {
 		log.info("{}", joinGamePacket);
 		channel.getCtx().write(joinGamePacket);
 
-		SpawnPositionPacket spawnPositionPacket = new SpawnPositionPacket();
-		spawnPositionPacket.setSpawn(new Location(0d, 63d, 0d));
+		Location spawnLocation = new Location(0d, 63d, 0d);
+
+		var spawnPositionPacket = new SpawnPositionPacket();
+		spawnPositionPacket.setSpawn(spawnLocation);
 
 		log.info("{}", spawnPositionPacket);
 		channel.getCtx().write(spawnPositionPacket);
 
-		PlayerAbilitiesPacket playerAbilitiesPacket = new PlayerAbilitiesPacket();
+		var playerAbilitiesPacket = new PlayerAbilitiesPacket();
 		playerAbilitiesPacket.setCatFly(true);
 		playerAbilitiesPacket.setFlying(true);
 		playerAbilitiesPacket.setCreativeMode(false);
@@ -95,6 +98,14 @@ public class PacketHandler {
 		channel.getCtx().write(playerAbilitiesPacket);
 
 		channel.getCtx().flush();
+
+		var playerPositionAndLookPacket = new PlayerPositionAndLookPacket();
+		playerPositionAndLookPacket.setPosition(spawnLocation);
+		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
+		playerPositionAndLookPacket.setTeleportId(random.nextInt());
+
+		log.info("{}", playerPositionAndLookPacket);
+		channel.getCtx().writeAndFlush(playerPositionAndLookPacket);
 	}
 
 	private static String faviconToBase64(Path iconPath) {
