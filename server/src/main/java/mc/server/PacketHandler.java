@@ -9,10 +9,7 @@ import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
-import mc.protocol.packets.server.JoinGamePacket;
-import mc.protocol.packets.server.LoginSuccessPacket;
-import mc.protocol.packets.server.SpawnPositionPacket;
-import mc.protocol.packets.server.StatusServerResponse;
+import mc.protocol.packets.server.*;
 import mc.protocol.serializer.TextSerializer;
 import mc.server.config.Config;
 import org.apache.commons.io.IOUtils;
@@ -85,6 +82,17 @@ public class PacketHandler {
 
 		log.info("{}", spawnPositionPacket);
 		channel.getCtx().write(spawnPositionPacket);
+
+		PlayerAbilitiesPacket playerAbilitiesPacket = new PlayerAbilitiesPacket();
+		playerAbilitiesPacket.setCatFly(true);
+		playerAbilitiesPacket.setFlying(true);
+		playerAbilitiesPacket.setCreativeMode(false);
+		playerAbilitiesPacket.setInvulnerable(true);
+		playerAbilitiesPacket.setFieldOfView(0.0f);
+		playerAbilitiesPacket.setFlyingSpeed(0.05f);
+
+		log.info("{}", playerAbilitiesPacket);
+		channel.getCtx().write(playerAbilitiesPacket);
 
 		channel.getCtx().flush();
 	}
