@@ -8,15 +8,10 @@ import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyServer;
-import mc.protocol.ProtocolConstant;
-import mc.protocol.model.ServerInfo;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
-import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.StatusServerResponse;
-import mc.protocol.serializer.TextSerializer;
 import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
@@ -30,8 +25,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,44 +46,23 @@ public class Main {
 		Config config = serverComponent.getConfig();
 
 		NettyServer server = NettyServer.createServer();
+		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
 		server.packetFlux(HandshakePacket.class)
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> channel.setState(channel.getPacket().getNextState()));
+				.subscribe(packetHandler::onHandshake);
 
 		server.packetFlux(PingPacket.class)
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> channel.getCtx().writeAndFlush(channel.getPacket()).channel().disconnect());
+				.subscribe(packetHandler::onKeepAlive);
 
 		server.packetFlux(StatusServerRequestPacket.class)
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> {
-					ServerInfo serverInfo = new ServerInfo();
-					serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
-					serverInfo.version().protocol(ProtocolConstant.PROTOCOL_NUMBER);
-					serverInfo.players().max(config.players().maxOnlile());
-					serverInfo.players().online(config.players().onlile());
-					serverInfo.players().sample(Collections.emptyList());
-					serverInfo.description(TextSerializer.fromPlain(config.motd()));
-
-					if (config.iconPath() != null) {
-						serverInfo.favicon(faviconToBase64(config.iconPath()));
-					}
-
-					StatusServerResponse response = new StatusServerResponse();
-					response.setInfo(serverInfo);
-
-					channel.getCtx().writeAndFlush(response);
-				});
+				.subscribe(packetHandler::onServerStatus);
 
 		server.packetFlux(LoginStartPacket.class)
 				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> {
-					DisconnectPacket disconnectPacket = new DisconnectPacket();
-					disconnectPacket.setReason(TextSerializer.fromPlain(config.disconnectReason()));
-
-					channel.getCtx().writeAndFlush(disconnectPacket).channel().disconnect();
-				});
+				.subscribe(packetHandler::onLoginStart);
 
 		server.bind(config.server().host(), config.server().port());
 	}
@@ -157,17 +129,6 @@ public class Main {
 				.defaultsTo(Paths.get("logback.xml"));
 
 		return optionParser;
-	}
-
-	private static String faviconToBase64(Path iconPath) {
-		try {
-			return "data:image/png;base64," +
-					Base64.getEncoder().encodeToString(
-							IOUtils.toByteArray(Files.newInputStream(iconPath)));
-		} catch (IOException e) {
-			log.error("Can't read icon '{}'", iconPath.toAbsolutePath(), e);
-			return "";
-		}
 	}
 
 	private static boolean initializeCheckFiles(Path... paths) {
