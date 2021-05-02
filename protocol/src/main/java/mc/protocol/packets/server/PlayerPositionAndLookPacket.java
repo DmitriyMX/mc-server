@@ -5,6 +5,7 @@ import mc.protocol.io.NetByteBuf;
 import mc.protocol.model.Location;
 import mc.protocol.model.Look;
 import mc.protocol.packets.ServerSidePacket;
+import mc.protocol.packets.client.TeleportConfirmPacket;
 
 /**
  * Установка позиции и угла осмотра Игрока.
@@ -37,6 +38,7 @@ import mc.protocol.packets.ServerSidePacket;
  * <i>"It's a bitfield, X/Y/Z/Y_ROT/X_ROT. If X is set, the x value is relative and not absolute."</i>
  *
  * @see <a href="https://wiki.vg/index.php?title=Protocol&oldid=14204#Player_Position_And_Look_.28clientbound.29">Player Position And Look</a>
+ * @see TeleportConfirmPacket
  */
 @Data
 public class PlayerPositionAndLookPacket implements ServerSidePacket {

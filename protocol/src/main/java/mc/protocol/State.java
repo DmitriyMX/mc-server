@@ -44,6 +44,7 @@ public enum State {
 	PLAY(3,
 			// server bound
 			Map.of(
+					0x00, TeleportConfirmPacket.class,
 					0x04, ClientSettingsPacket.class,
 					0x09, PluginMessagePacket.class
 			),
