@@ -9,7 +9,7 @@ import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
-import mc.protocol.packets.server.DisconnectPacket;
+import mc.protocol.packets.server.LoginSuccessPacket;
 import mc.protocol.packets.server.StatusServerResponse;
 import mc.protocol.serializer.TextSerializer;
 import mc.server.config.Config;
@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -55,10 +56,13 @@ public class PacketHandler {
 	}
 
 	public void onLoginStart(ChannelContext<LoginStartPacket> channel) {
-		DisconnectPacket disconnectPacket = new DisconnectPacket();
-		disconnectPacket.setReason(TextSerializer.fromPlain(config.disconnectReason()));
+		LoginStartPacket loginStartPacket = channel.getPacket();
 
-		channel.getCtx().writeAndFlush(disconnectPacket).channel().disconnect();
+		LoginSuccessPacket loginSuccessPacket = new LoginSuccessPacket();
+		loginSuccessPacket.setUuid(UUID.randomUUID());
+		loginSuccessPacket.setName(loginStartPacket.getName());
+
+		channel.getCtx().writeAndFlush(loginSuccessPacket);
 	}
 
 	private static String faviconToBase64(Path iconPath) {

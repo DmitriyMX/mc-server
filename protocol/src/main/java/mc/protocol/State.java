@@ -10,6 +10,7 @@ import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
+import mc.protocol.packets.server.LoginSuccessPacket;
 import mc.protocol.packets.server.StatusServerResponse;
 
 import javax.annotation.Nullable;
@@ -39,7 +40,10 @@ public enum State {
 			// server bound
 			Map.of(0x00, LoginStartPacket.class),
 			// client bound
-			Map.of(DisconnectPacket.class, 0x00)
+			Map.of(
+					DisconnectPacket.class, 0x00,
+					LoginSuccessPacket.class, 0x02
+			)
 	);
 
 	@Nullable
