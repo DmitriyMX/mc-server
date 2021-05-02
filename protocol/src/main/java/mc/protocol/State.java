@@ -10,6 +10,7 @@ import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.DisconnectPacket;
+import mc.protocol.packets.server.JoinGamePacket;
 import mc.protocol.packets.server.LoginSuccessPacket;
 import mc.protocol.packets.server.StatusServerResponse;
 
@@ -44,6 +45,12 @@ public enum State {
 					DisconnectPacket.class, 0x00,
 					LoginSuccessPacket.class, 0x02
 			)
+	),
+	PLAY(3,
+			// server bound
+			Map.of(),
+			// client bound
+			Map.of(JoinGamePacket.class, 0x23)
 	);
 
 	@Nullable

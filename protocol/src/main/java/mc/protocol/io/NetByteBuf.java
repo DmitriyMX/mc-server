@@ -49,6 +49,10 @@ public class NetByteBuf extends ByteBuf {
 	@Delegate
 	private final ByteBuf byteBuf;
 
+	public void writeUnsignedByte(int value) {
+		byteBuf.writeByte((byte)(value & 0xFF));
+	}
+
 	//region String
 	public String readString() {
 		return readString(Short.MAX_VALUE);
