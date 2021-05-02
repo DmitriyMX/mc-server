@@ -10,7 +10,7 @@ import mc.protocol.model.Look;
 import mc.protocol.packets.ClientSidePacket;
 
 /**
- * Клиент сообщает о движении Игрока.
+ * Клиент сообщает о движении и повороте головы Игрока.
  *
  * <p>Структура пакета</p>
  * <pre>
@@ -35,7 +35,6 @@ public class CPlayerPositionAndLookPacket implements ClientSidePacket {
 
 	private Location position;
 	private Look look;
-	@SuppressWarnings("java:S116")
 	private boolean onGround;
 
 	@Override

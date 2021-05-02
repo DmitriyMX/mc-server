@@ -47,6 +47,7 @@ public enum State {
 					0x00, TeleportConfirmPacket.class,
 					0x04, ClientSettingsPacket.class,
 					0x09, PluginMessagePacket.class,
+					0x0D, PlayerPositionPacket.class,
 					0x0E, CPlayerPositionAndLookPacket.class
 			),
 			// client bound
