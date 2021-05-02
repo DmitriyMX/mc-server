@@ -48,7 +48,8 @@ public enum State {
 					0x04, ClientSettingsPacket.class,
 					0x09, PluginMessagePacket.class,
 					0x0D, PlayerPositionPacket.class,
-					0x0E, CPlayerPositionAndLookPacket.class
+					0x0E, CPlayerPositionAndLookPacket.class,
+					0x0F, PlayerLookPacket.class
 			),
 			// client bound
 			Map.of(
