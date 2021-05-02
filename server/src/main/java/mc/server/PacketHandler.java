@@ -64,7 +64,6 @@ public class PacketHandler {
 		loginSuccessPacket.setUuid(UUID.randomUUID());
 		loginSuccessPacket.setName(loginStartPacket.getName());
 
-		log.info("{}", loginSuccessPacket);
 		channel.getCtx().writeAndFlush(loginSuccessPacket);
 		channel.setState(State.PLAY);
 
@@ -75,7 +74,6 @@ public class PacketHandler {
 		joinGamePacket.setDifficulty(Difficulty.PEACEFUL);
 		joinGamePacket.setLevelType(LevelType.FLAT);
 
-		log.info("{}", joinGamePacket);
 		channel.getCtx().write(joinGamePacket);
 
 		Location spawnLocation = new Location(0d, 63d, 0d);
@@ -83,7 +81,6 @@ public class PacketHandler {
 		var spawnPositionPacket = new SpawnPositionPacket();
 		spawnPositionPacket.setSpawn(spawnLocation);
 
-		log.info("{}", spawnPositionPacket);
 		channel.getCtx().write(spawnPositionPacket);
 
 		var playerAbilitiesPacket = new PlayerAbilitiesPacket();
@@ -94,7 +91,6 @@ public class PacketHandler {
 		playerAbilitiesPacket.setFieldOfView(0.0f);
 		playerAbilitiesPacket.setFlyingSpeed(0.05f);
 
-		log.info("{}", playerAbilitiesPacket);
 		channel.getCtx().write(playerAbilitiesPacket);
 
 		channel.getCtx().flush();
@@ -104,7 +100,6 @@ public class PacketHandler {
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
 		playerPositionAndLookPacket.setTeleportId(random.nextInt());
 
-		log.info("{}", playerPositionAndLookPacket);
 		channel.getCtx().writeAndFlush(playerPositionAndLookPacket);
 	}
 
