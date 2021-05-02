@@ -40,7 +40,7 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 		int packetId = netByteBuf.readVarInt();
 		Class<? extends ClientSidePacket> packetClass = state.getClientSidePacketById(packetId);
 		if (packetClass == null) {
-			log.warn("Unkown packet: State {} ; Id {}", state, packetId);
+			log.warn("Unkown packet: State {} ; Id 0x{}", state, packetIdAsHexcode(packetId));
 
 			if (readUnknownPackets) {
 				UnknownPacket unknownPacket = new UnknownPacket(state, packetId, netByteBuf.readableBytes());
@@ -54,5 +54,12 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 			packet.readSelf(netByteBuf);
 			out.add(packet);
 		}
+	}
+
+	private String packetIdAsHexcode(int packetId) {
+		String hexPacketId = Integer.toHexString(packetId).toUpperCase();
+		if (hexPacketId.length() == 1) hexPacketId = "0" + hexPacketId;
+
+		return hexPacketId;
 	}
 }
