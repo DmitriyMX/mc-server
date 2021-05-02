@@ -53,6 +53,7 @@ public enum State {
 			Map.of(
 					JoinGamePacket.class, 0x23,
 					SpawnPositionPacket.class, 0x46,
+					ChunkDataPacket.class, 0x20,
 					PlayerAbilitiesPacket.class,0x2C,
 					SPlayerPositionAndLookPacket.class, 0x2F
 			)

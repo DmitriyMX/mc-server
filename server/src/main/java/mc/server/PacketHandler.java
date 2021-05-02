@@ -95,6 +95,12 @@ public class PacketHandler {
 
 		channel.getCtx().flush();
 
+		var chunkDataPacket = new ChunkDataPacket();
+		chunkDataPacket.setX(0);
+		chunkDataPacket.setZ(0);
+
+		channel.getCtx().writeAndFlush(chunkDataPacket);
+
 		var playerPositionAndLookPacket = new SPlayerPositionAndLookPacket();
 		playerPositionAndLookPacket.setPosition(spawnLocation);
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
