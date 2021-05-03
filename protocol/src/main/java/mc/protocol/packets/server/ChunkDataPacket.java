@@ -14,8 +14,8 @@ import mc.protocol.packets.ServerSidePacket;
  * |--------------------------|------------- |------------------------------------------------------------------------------------|
  * | Chunk X                  | Integer      | Координаты чанка (координата блока, делённая на 16, округленная в меньшую сторону) |
  * | Chunk Z                  | Integer      | Координаты чанка (координата блока, делённая на 16, округленная в меньшую сторону) |
- * | Ground-Up Continuous     | Boolean      | См. Chunk Format                                                                   |
- * | Primary Bit Mask         | VarInt       | Битовая маска, где каждый бит - это часть чанка (0-15)                             |
+ * | Is Full chunk            | Boolean      | См. Chunk Format                                                                   |
+ * | Available Sections       | VarInt       | Битовая маска, где каждый бит - это часть чанка (0-15)                             |
  * | Size of Data             | VarInt       | Размер поля "Data"                                                                 |
  * | Data                     | Byte array   | Данные чанка. См. Chunk Format                                                     |
  * | Number of block entities | VarInt       | Количество элементов в поле "Block entities"                                       |
@@ -35,17 +35,16 @@ public class ChunkDataPacket implements ServerSidePacket {
 	public void writeSelf(NetByteBuf netByteBuf) {
 		netByteBuf.writeInt(x);
 		netByteBuf.writeInt(z);
-		netByteBuf.writeBoolean(true); // Ground-Up Continuous
-		netByteBuf.writeVarInt(0b11111111); // Primary Bit Mask
+		netByteBuf.writeBoolean(true); // Is Full chunk
+		netByteBuf.writeVarInt(0b11111111); // Available Sections
 
 		NetByteBuf data = new NetByteBuf(Unpooled.buffer());
 		// <Data>
 		for (int i = 0; i < 16; i++) {
-			NetByteBuf dataBuff = new NetByteBuf(Unpooled.buffer(4096));
-			NetByteBuf blockLight = new NetByteBuf(Unpooled.buffer(2048));
-			NetByteBuf skyLight = new NetByteBuf(Unpooled.buffer(2048));
-			NetByteBuf biomes = new NetByteBuf(Unpooled.buffer(256));
-
+			NetByteBuf dataBuff = new NetByteBuf(Unpooled.wrappedBuffer(new byte[4096]));
+			NetByteBuf blockLight = new NetByteBuf(Unpooled.wrappedBuffer(new byte[2048]));
+			NetByteBuf skyLight = new NetByteBuf(Unpooled.wrappedBuffer(new byte[2048]));
+			NetByteBuf biomes = new NetByteBuf(Unpooled.wrappedBuffer(new byte[256]));
 
 			// <Chunk Section>
 			data.writeUnsignedByte(13); // Bits Per Block
