@@ -40,7 +40,7 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 		int packetId = netByteBuf.readVarInt();
 		Class<? extends ClientSidePacket> packetClass = state.getClientSidePacketById(packetId);
 		if (packetClass == null) {
-			log.warn("Unkown packet: State {} ; Id 0x{}", state, packetIdAsHexcode(packetId));
+			log.warn("Unknown packet: State {} ; Id 0x{}", state, packetIdAsHexcode(packetId));
 
 			if (readUnknownPackets) {
 				UnknownPacket unknownPacket = new UnknownPacket(state, packetId, netByteBuf.readableBytes());
