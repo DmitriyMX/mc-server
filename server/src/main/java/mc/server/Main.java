@@ -8,6 +8,7 @@ import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyServer;
+import mc.protocol.State;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
@@ -48,10 +49,10 @@ public class Main {
 		NettyServer server = NettyServer.createServer();
 		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
-		server.packetFlux(HandshakePacket.class).subscribe(packetHandler::onHandshake);
-		server.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);
-		server.packetFlux(StatusServerRequestPacket.class).subscribe(packetHandler::onServerStatus);
-		server.packetFlux(LoginStartPacket.class).subscribe(packetHandler::onLoginStart);
+		State.HANDSHAKING.packetFlux(HandshakePacket.class).subscribe(packetHandler::onHandshake);
+		State.STATUS.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);
+		State.STATUS.packetFlux(StatusServerRequestPacket.class).subscribe(packetHandler::onServerStatus);
+		State.LOGIN.packetFlux(LoginStartPacket.class).subscribe(packetHandler::onLoginStart);
 
 		server.bind(config.server().host(), config.server().port());
 	}

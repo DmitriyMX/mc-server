@@ -11,31 +11,23 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import mc.protocol.ChannelContext;
 import mc.protocol.NettyServer;
 import mc.protocol.PacketInboundHandler;
-import mc.protocol.State;
 import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
-import mc.protocol.packets.Packet;
-import reactor.core.publisher.Sinks;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Module
 public class ProtocolModule {
 
-	@SuppressWarnings("rawtypes")
 	@Provides
-	NettyServer provideServer(ServerBootstrap serverBootstrap,
-							  Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> observedMap) {
-		return new NettyServer(serverBootstrap, observedMap);
+	NettyServer provideServer(ServerBootstrap serverBootstrap) {
+		return new NettyServer(serverBootstrap);
 	}
 
 	@Provides
@@ -62,28 +54,16 @@ public class ProtocolModule {
 		};
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Provides
-	Map<String, ChannelHandler> provideChannelHandlerMap(
-			Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> observedMap) {
-
+	Map<String, ChannelHandler> provideChannelHandlerMap() {
 		Map<String, ChannelHandler> map = new LinkedHashMap<>();
 
 		map.put("packet_splitter", new ProtocolSplitter());
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
 		map.put("packet_decoder", new ProtocolDecoder(true));
 		map.put("packet_encoder", new ProtocolEncoder());
-		map.put("packet_handler", new PacketInboundHandler(observedMap));
+		map.put("packet_handler", new PacketInboundHandler());
 
 		return map;
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Provides
-	@ServerScope
-	Map<Class<? extends Packet>, Sinks.Many<ChannelContext>> provideObservedMap() {
-		return Stream.of(State.values())
-				.flatMap(state -> state.getClientSidePackets().values().stream())
-				.collect(Collectors.toMap(packetClass -> packetClass, v -> Sinks.many().multicast().directBestEffort()));
 	}
 }
