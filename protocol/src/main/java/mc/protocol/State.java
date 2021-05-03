@@ -50,12 +50,14 @@ public enum State {
 					0x00, TeleportConfirmPacket.class,
 					0x04, ClientSettingsPacket.class,
 					0x09, PluginMessagePacket.class,
+					0x0B, PingPacket.class,
 					0x0D, PlayerPositionPacket.class,
 					0x0E, CPlayerPositionAndLookPacket.class,
 					0x0F, PlayerLookPacket.class
 			),
 			// client bound
 			Map.of(
+					PingPacket.class, 0x1F,
 					JoinGamePacket.class, 0x23,
 					SpawnPositionPacket.class, 0x46,
 					ChunkDataPacket.class, 0x20,

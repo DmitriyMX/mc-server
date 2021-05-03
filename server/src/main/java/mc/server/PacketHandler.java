@@ -38,6 +38,10 @@ public class PacketHandler {
 		channel.getCtx().writeAndFlush(channel.getPacket()).channel().disconnect();
 	}
 
+	public void onKeepAlivePlay(ChannelContext<PingPacket> channel) {
+		channel.getCtx().writeAndFlush(channel.getPacket());
+	}
+
 	public void onServerStatus(ChannelContext<StatusServerRequestPacket> channel) {
 		ServerInfo serverInfo = new ServerInfo();
 		serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
@@ -106,7 +110,14 @@ public class PacketHandler {
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
 		playerPositionAndLookPacket.setTeleportId(random.nextInt());
 
-		channel.getCtx().writeAndFlush(playerPositionAndLookPacket);
+		channel.getCtx().write(playerPositionAndLookPacket);
+
+		PingPacket pingPacket = new PingPacket();
+		pingPacket.setPayload(System.currentTimeMillis());
+
+		channel.getCtx().write(pingPacket);
+
+		channel.getCtx().flush();
 	}
 
 	private static String faviconToBase64(Path iconPath) {

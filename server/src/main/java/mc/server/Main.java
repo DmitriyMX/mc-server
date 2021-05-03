@@ -53,6 +53,7 @@ public class Main {
 		State.STATUS.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);
 		State.STATUS.packetFlux(StatusServerRequestPacket.class).subscribe(packetHandler::onServerStatus);
 		State.LOGIN.packetFlux(LoginStartPacket.class).subscribe(packetHandler::onLoginStart);
+		State.PLAY.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlivePlay);
 
 		server.bind(config.server().host(), config.server().port());
 	}
