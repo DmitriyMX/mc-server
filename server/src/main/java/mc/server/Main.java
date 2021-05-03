@@ -48,21 +48,10 @@ public class Main {
 		NettyServer server = NettyServer.createServer();
 		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
-		server.packetFlux(HandshakePacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(packetHandler::onHandshake);
-
-		server.packetFlux(PingPacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(packetHandler::onKeepAlive);
-
-		server.packetFlux(StatusServerRequestPacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(packetHandler::onServerStatus);
-
-		server.packetFlux(LoginStartPacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(packetHandler::onLoginStart);
+		server.packetFlux(HandshakePacket.class).subscribe(packetHandler::onHandshake);
+		server.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);
+		server.packetFlux(StatusServerRequestPacket.class).subscribe(packetHandler::onServerStatus);
+		server.packetFlux(LoginStartPacket.class).subscribe(packetHandler::onLoginStart);
 
 		server.bind(config.server().host(), config.server().port());
 	}

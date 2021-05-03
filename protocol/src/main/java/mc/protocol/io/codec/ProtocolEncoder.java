@@ -20,7 +20,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<ServerSidePacket> {
 		State state = ctx.channel().attr(NetworkAttributes.STATE).get();
 		int packetId = Objects.requireNonNull(state.getServerSidePacketId(packet.getClass()));
 
-		log.info("Send {}:{}", state, packet);
+		log.debug("OUT: {}:{}", state, packet);
 
 		NetByteBuf buffer = new NetByteBuf(Unpooled.buffer());
 		buffer.writeVarInt(packetId);

@@ -52,6 +52,7 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 		} else {
 			ClientSidePacket packet = packetClass.getDeclaredConstructor().newInstance();
 			packet.readSelf(netByteBuf);
+			log.debug("IN: {}:{}", state, packet);
 			out.add(packet);
 		}
 	}
