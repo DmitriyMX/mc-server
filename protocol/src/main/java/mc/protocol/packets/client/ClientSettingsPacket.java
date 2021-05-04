@@ -64,6 +64,16 @@ public class ClientSettingsPacket implements ClientSidePacket {
 		this.mainHand = MainHand.valueById(netByteBuf.readVarInt());
 	}
 
+	@Override
+	public void passivate() {
+		this.locale = null;
+		this.viewDistance = 0;
+		this.chatMode = null;
+		this.chatColors = false;
+		this.$displayedSkinPartsBitMask = 0;
+		this.mainHand = null;
+	}
+
 	public boolean isCapeEnabled() {
 		return ($displayedSkinPartsBitMask & 0x01) > 0;
 	}

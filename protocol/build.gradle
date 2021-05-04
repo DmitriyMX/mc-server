@@ -4,6 +4,7 @@ dependencies {
     api libs.netty
     api libs.reactor
     implementation libs.json
+    implementation libs.objpool
 
     testImplementation libs.lang3
 }

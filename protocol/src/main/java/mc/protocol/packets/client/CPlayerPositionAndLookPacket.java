@@ -51,6 +51,13 @@ public class CPlayerPositionAndLookPacket implements ClientSidePacket {
 		this.onGround = netByteBuf.readBoolean();
 	}
 
+	@Override
+	public void passivate() {
+		this.position = null;
+		this.look = null;
+		this.onGround = false;
+	}
+
 	public double getYPositionHead() {
 		return this.position.getY() + 1.62f;
 	}

@@ -39,4 +39,10 @@ public class PluginMessagePacket implements ClientSidePacket {
 		this.rawData = new byte[netByteBuf.readableBytes()];
 		netByteBuf.readBytes(this.rawData);
 	}
+
+	@Override
+	public void passivate() {
+		this.channelName = null;
+		this.rawData = null;
+	}
 }

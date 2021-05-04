@@ -13,4 +13,9 @@ public abstract class EmptyPacket implements ClientSidePacket, ServerSidePacket 
 	public void writeSelf(NetByteBuf netByteBuf) {
 		// empty
 	}
+
+	@Override
+	public void passivate() {
+		// pass
+	}
 }

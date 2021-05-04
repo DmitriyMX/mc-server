@@ -39,4 +39,10 @@ public class PlayerLookPacket implements ClientSidePacket {
 
 		this.onGround = netByteBuf.readBoolean();
 	}
+
+	@Override
+	public void passivate() {
+		this.look = null;
+		this.onGround = false;
+	}
 }
