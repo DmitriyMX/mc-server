@@ -16,6 +16,8 @@ import mc.protocol.PacketInboundHandler;
 import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
+import mc.protocol.utils.EventBus;
+import mc.protocol.utils.SimpleEventBus;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
@@ -26,8 +28,8 @@ import java.util.Map;
 public class ProtocolModule {
 
 	@Provides
-	NettyServer provideServer(ServerBootstrap serverBootstrap) {
-		return new NettyServer(serverBootstrap);
+	NettyServer provideServer(ServerBootstrap serverBootstrap, EventBus eventBus) {
+		return new NettyServer(serverBootstrap, eventBus);
 	}
 
 	@Provides
@@ -55,15 +57,21 @@ public class ProtocolModule {
 	}
 
 	@Provides
-	Map<String, ChannelHandler> provideChannelHandlerMap() {
+	Map<String, ChannelHandler> provideChannelHandlerMap(EventBus eventBus) {
 		Map<String, ChannelHandler> map = new LinkedHashMap<>();
 
 		map.put("packet_splitter", new ProtocolSplitter());
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
 		map.put("packet_decoder", new ProtocolDecoder(true));
 		map.put("packet_encoder", new ProtocolEncoder());
-		map.put("packet_handler", new PacketInboundHandler());
+		map.put("packet_handler", new PacketInboundHandler(eventBus));
 
 		return map;
+	}
+
+	@Provides
+	@ServerScope
+	EventBus provideEventBus() {
+		return new SimpleEventBus();
 	}
 }

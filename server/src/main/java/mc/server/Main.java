@@ -49,11 +49,11 @@ public class Main {
 		NettyServer server = NettyServer.createServer();
 		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
-		State.HANDSHAKING.packetFlux(HandshakePacket.class).subscribe(packetHandler::onHandshake);
-		State.STATUS.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);
-		State.STATUS.packetFlux(StatusServerRequestPacket.class).subscribe(packetHandler::onServerStatus);
-		State.LOGIN.packetFlux(LoginStartPacket.class).subscribe(packetHandler::onLoginStart);
-		State.PLAY.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlivePlay);
+		server.listenPacket(State.HANDSHAKING, HandshakePacket.class, packetHandler::onHandshake);
+		server.listenPacket(State.STATUS, PingPacket.class, packetHandler::onKeepAlive);
+		server.listenPacket(State.STATUS, StatusServerRequestPacket.class, packetHandler::onServerStatus);
+		server.listenPacket(State.LOGIN, LoginStartPacket.class, packetHandler::onLoginStart);
+		server.listenPacket(State.PLAY, PingPacket.class, packetHandler::onKeepAlivePlay);
 
 		server.bind(config.server().host(), config.server().port());
 	}
