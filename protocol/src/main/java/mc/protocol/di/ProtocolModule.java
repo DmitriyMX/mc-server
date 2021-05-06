@@ -7,8 +7,10 @@ import mc.protocol.State;
 import mc.protocol.api.Server;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
+import mc.protocol.utils.EventBus;
 import mc.protocol.utils.PacketFactory;
 import mc.protocol.utils.PacketPool;
+import mc.protocol.utils.SimpleEventBus;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
@@ -21,8 +23,8 @@ public class ProtocolModule {
 
 	@Provides
 	@ServerScope
-	Server provideServer(PacketPool packetPool) {
-		return new NettyServer(packetPool);
+	Server provideServer(PacketPool packetPool, EventBus eventBus) {
+		return new NettyServer(packetPool, eventBus);
 	}
 
 	@Provides
@@ -38,5 +40,11 @@ public class ProtocolModule {
 		map.put(UnknownPacket.class, new GenericObjectPool(new PacketFactory<>(UnknownPacket.class)));
 
 		return new PacketPool(map);
+	}
+
+	@Provides
+	@ServerScope
+	EventBus provideEventBus() {
+		return new SimpleEventBus();
 	}
 }

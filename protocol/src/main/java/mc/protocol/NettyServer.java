@@ -16,6 +16,8 @@ import mc.protocol.api.Server;
 import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
+import mc.protocol.packets.ClientSidePacket;
+import mc.protocol.utils.EventBus;
 import mc.protocol.utils.PacketPool;
 
 import javax.annotation.Nonnull;
@@ -28,6 +30,7 @@ import java.util.function.Consumer;
 public class NettyServer implements Server {
 
 	private final PacketPool packetPool;
+	private final EventBus eventBus;
 	private Consumer<ConnectionContext<?>> consumerNewConnection;
 	private Consumer<ConnectionContext<?>> consumerDisconnect;
 
@@ -52,6 +55,11 @@ public class NettyServer implements Server {
 	@Override
 	public void onDisonnect(Consumer<ConnectionContext<?>> consumer) {
 		this.consumerDisconnect = consumer;
+	}
+
+	@Override
+	public <P extends ClientSidePacket> void listenPacket(State state, Class<P> packetClass, EventBus.EventHandler<P> eventHandler) {
+		this.eventBus.subscribe(state, packetClass, eventHandler);
 	}
 
 	private ServerBootstrap createServerBootstrap() {
@@ -81,7 +89,7 @@ public class NettyServer implements Server {
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
 		map.put("packet_decoder", new ProtocolDecoder(true, packetPool, consumerNewConnection, consumerDisconnect));
 		map.put("packet_encoder", new ProtocolEncoder());
-		map.put("packet_handler", new PacketInboundHandler(packetPool));
+		map.put("packet_handler", new PacketInboundHandler(packetPool, eventBus));
 
 		return map;
 	}

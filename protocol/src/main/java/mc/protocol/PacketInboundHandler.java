@@ -3,25 +3,20 @@ package mc.protocol;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
-import mc.protocol.api.ConnectionContext;
 import mc.protocol.packets.ClientSidePacket;
+import mc.protocol.utils.EventBus;
 import mc.protocol.utils.PacketPool;
-import reactor.core.publisher.Sinks;
 
 @RequiredArgsConstructor
 public class PacketInboundHandler extends SimpleChannelInboundHandler<ClientSidePacket> {
 
 	private final PacketPool poolPackets;
+	private final EventBus eventBus;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, ClientSidePacket packet) throws Exception {
-		Sinks.Many<ConnectionContext> packetSinks = ctx.channel().attr(NetworkAttributes.STATE)
-				.get().getPacketSinks(packet.getClass());
-
-		if (packetSinks != null) {
-			packetSinks.tryEmitNext(new NettyConnectionContext<>(ctx, packet));
-		}
+		State state = ctx.channel().attr(NetworkAttributes.STATE).get();
+		eventBus.emit(state, new NettyConnectionContext<>(ctx, packet));
 
 		poolPackets.returnObject(packet);
 	}
