@@ -4,8 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
 import mc.protocol.packets.ClientSidePacket;
-import mc.protocol.utils.EventBus;
-import mc.protocol.utils.PacketPool;
+import mc.protocol.event.EventBus;
+import mc.protocol.pool.PacketPool;
 
 @RequiredArgsConstructor
 public class PacketInboundHandler extends SimpleChannelInboundHandler<ClientSidePacket> {

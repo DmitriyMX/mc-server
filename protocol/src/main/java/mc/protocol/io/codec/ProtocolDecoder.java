@@ -12,7 +12,7 @@ import mc.protocol.api.ConnectionContext;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
-import mc.protocol.utils.PacketPool;
+import mc.protocol.pool.PacketPool;
 
 import javax.annotation.Nonnull;
 import java.util.List;

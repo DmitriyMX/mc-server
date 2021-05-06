@@ -7,10 +7,10 @@ import mc.protocol.State;
 import mc.protocol.api.Server;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
-import mc.protocol.utils.EventBus;
-import mc.protocol.utils.PacketFactory;
-import mc.protocol.utils.PacketPool;
-import mc.protocol.utils.SimpleEventBus;
+import mc.protocol.event.EventBus;
+import mc.protocol.pool.PacketFactory;
+import mc.protocol.pool.PacketPool;
+import mc.protocol.event.SimpleEventBus;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 

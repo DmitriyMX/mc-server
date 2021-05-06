@@ -17,8 +17,8 @@ import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
 import mc.protocol.packets.ClientSidePacket;
-import mc.protocol.utils.EventBus;
-import mc.protocol.utils.PacketPool;
+import mc.protocol.event.EventBus;
+import mc.protocol.pool.PacketPool;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
@@ -58,6 +58,7 @@ public class NettyServer implements Server {
 	}
 
 	@Override
+	@SuppressWarnings("java:S2326") // Сонар, ты бредишь
 	public <P extends ClientSidePacket> void listenPacket(State state, Class<P> packetClass, EventBus.EventHandler<P> eventHandler) {
 		this.eventBus.subscribe(state, packetClass, eventHandler);
 	}

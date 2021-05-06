@@ -1,8 +1,9 @@
-package mc.protocol.utils;
+package mc.protocol.event;
 
 import mc.protocol.State;
 import mc.protocol.api.ConnectionContext;
 import mc.protocol.packets.ClientSidePacket;
+import mc.protocol.utils.Table;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class SimpleEventBus implements EventBus {

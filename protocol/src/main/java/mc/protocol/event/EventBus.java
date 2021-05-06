@@ -1,4 +1,4 @@
-package mc.protocol.utils;
+package mc.protocol.event;
 
 import mc.protocol.State;
 import mc.protocol.api.ConnectionContext;
