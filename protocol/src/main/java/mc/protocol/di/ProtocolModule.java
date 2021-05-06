@@ -32,7 +32,6 @@ public class ProtocolModule {
 	}
 
 	@Provides
-	@ServerScope
 	ProtocolDecoder provideProtocolDecoder(
 			ObjectPool<NettyConnectionContext> poolNettyConnectionContext,
 			PacketPool poolPackets
@@ -41,7 +40,6 @@ public class ProtocolModule {
 	}
 
 	@Provides
-	@ServerScope
 	PacketInboundHandler providePacketInboundHandler(
 			ObjectPool<NettyConnectionContext> poolNettyConnectionContext,
 			PacketPool packetPool,
