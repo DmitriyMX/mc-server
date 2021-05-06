@@ -1,4 +1,4 @@
-package mc.protocol;
+package mc.protocol.utils;
 
 import javax.annotation.Nullable;
 

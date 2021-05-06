@@ -13,6 +13,9 @@ import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
 import mc.protocol.packets.server.*;
 import mc.protocol.serializer.TextSerializer;
+import mc.protocol.utils.Difficulty;
+import mc.protocol.utils.GameMode;
+import mc.protocol.utils.LevelType;
 import mc.server.config.Config;
 import org.apache.commons.io.IOUtils;
 

@@ -1,8 +1,8 @@
 package mc.protocol.packets.client;
 
 import lombok.*;
-import mc.protocol.ChatMode;
-import mc.protocol.MainHand;
+import mc.protocol.utils.ChatMode;
+import mc.protocol.utils.MainHand;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
 

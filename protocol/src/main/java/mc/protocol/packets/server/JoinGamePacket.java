@@ -1,9 +1,9 @@
 package mc.protocol.packets.server;
 
 import lombok.Data;
-import mc.protocol.Difficulty;
-import mc.protocol.GameMode;
-import mc.protocol.LevelType;
+import mc.protocol.utils.Difficulty;
+import mc.protocol.utils.GameMode;
+import mc.protocol.utils.LevelType;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ServerSidePacket;
 

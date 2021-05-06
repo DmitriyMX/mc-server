@@ -1,15 +1,15 @@
-package mc.protocol;
+package mc.protocol.utils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum GameMode {
-	SURVIVAL(0),
-	CREATIVE(1),
-	ADVENTURE(2),
-	SPECTATOR(3);
+public enum Difficulty {
+	PEACEFUL(0),
+	EASY(1),
+	NORMAL(2),
+	HARD(3);
 
 	private final int id;
 }
