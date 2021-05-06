@@ -1,8 +1,9 @@
 apply from: rootDir.toPath().resolve('logic.gradle').toFile()
 
 dependencies {
-    api libs.netty
     api libs.reactor
+
+    implementation libs.netty
     implementation libs.json
 
     testImplementation libs.lang3

@@ -3,6 +3,7 @@ package mc.server;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.*;
+import mc.protocol.api.ConnectionContext;
 import mc.protocol.model.Location;
 import mc.protocol.model.Look;
 import mc.protocol.model.ServerInfo;
@@ -27,22 +28,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PacketHandler {
 
-	private final Config config;
 	private final Random random = new Random(System.currentTimeMillis());
+	private final Config config;
 
-	public void onHandshake(ChannelContext<HandshakePacket> channel) {
-		channel.setState(channel.getPacket().getNextState());
+	public void onHandshake(ConnectionContext<HandshakePacket> context) {
+		context.setState(context.clientPacket().getNextState());
 	}
 
-	public void onKeepAlive(ChannelContext<PingPacket> channel) {
-		channel.getCtx().writeAndFlush(channel.getPacket()).channel().disconnect();
+	public void onKeepAlive(ConnectionContext<PingPacket> context) {
+		context.sendNow(context.clientPacket());
+		context.disconnect();
 	}
 
-	public void onKeepAlivePlay(ChannelContext<PingPacket> channel) {
-		channel.getCtx().writeAndFlush(channel.getPacket());
+	public void onKeepAlivePlay(ConnectionContext<PingPacket> context) {
+		context.sendNow(context.clientPacket());
 	}
 
-	public void onServerStatus(ChannelContext<StatusServerRequestPacket> channel) {
+	public void onServerStatus(ConnectionContext<StatusServerRequestPacket> context) {
 		ServerInfo serverInfo = new ServerInfo();
 		serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
 		serverInfo.version().protocol(ProtocolConstant.PROTOCOL_NUMBER);
@@ -58,18 +60,18 @@ public class PacketHandler {
 		StatusServerResponse response = new StatusServerResponse();
 		response.setInfo(serverInfo);
 
-		channel.getCtx().writeAndFlush(response);
+		context.sendNow(response);
 	}
 
-	public void onLoginStart(ChannelContext<LoginStartPacket> channel) {
-		LoginStartPacket loginStartPacket = channel.getPacket();
+	public void onLoginStart(ConnectionContext<LoginStartPacket> context) {
+		LoginStartPacket loginStartPacket = context.clientPacket();
 
 		var loginSuccessPacket = new LoginSuccessPacket();
 		loginSuccessPacket.setUuid(UUID.randomUUID());
 		loginSuccessPacket.setName(loginStartPacket.getName());
 
-		channel.getCtx().writeAndFlush(loginSuccessPacket);
-		channel.setState(State.PLAY);
+		context.sendNow(loginSuccessPacket);
+		context.setState(State.PLAY);
 
 		var joinGamePacket = new JoinGamePacket();
 		joinGamePacket.setEntityId(random.nextInt());
@@ -78,14 +80,14 @@ public class PacketHandler {
 		joinGamePacket.setDifficulty(Difficulty.PEACEFUL);
 		joinGamePacket.setLevelType(LevelType.FLAT);
 
-		channel.getCtx().write(joinGamePacket);
+		context.send(joinGamePacket);
 
 		Location spawnLocation = new Location(0d, 63d, 0d);
 
 		var spawnPositionPacket = new SpawnPositionPacket();
 		spawnPositionPacket.setSpawn(spawnLocation);
 
-		channel.getCtx().write(spawnPositionPacket);
+		context.send(spawnPositionPacket);
 
 		var playerAbilitiesPacket = new PlayerAbilitiesPacket();
 		playerAbilitiesPacket.setCatFly(true);
@@ -95,29 +97,29 @@ public class PacketHandler {
 		playerAbilitiesPacket.setFieldOfView(0.0f);
 		playerAbilitiesPacket.setFlyingSpeed(0.05f);
 
-		channel.getCtx().write(playerAbilitiesPacket);
+		context.send(playerAbilitiesPacket);
 
-		channel.getCtx().flush();
+		context.flushSending();
 
 		var chunkDataPacket = new ChunkDataPacket();
 		chunkDataPacket.setX(0);
 		chunkDataPacket.setZ(0);
 
-		channel.getCtx().writeAndFlush(chunkDataPacket);
+		context.sendNow(chunkDataPacket);
 
 		var playerPositionAndLookPacket = new SPlayerPositionAndLookPacket();
 		playerPositionAndLookPacket.setPosition(spawnLocation);
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
 		playerPositionAndLookPacket.setTeleportId(random.nextInt());
 
-		channel.getCtx().write(playerPositionAndLookPacket);
+		context.send(playerPositionAndLookPacket);
 
 		PingPacket pingPacket = new PingPacket();
 		pingPacket.setPayload(System.currentTimeMillis());
 
-		channel.getCtx().write(pingPacket);
+		context.send(pingPacket);
 
-		channel.getCtx().flush();
+		context.flushSending();
 	}
 
 	private static String faviconToBase64(Path iconPath) {

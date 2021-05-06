@@ -3,6 +3,7 @@ package mc.protocol;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
+import mc.protocol.api.ConnectionContext;
 import mc.protocol.packets.ClientSidePacket;
 import reactor.core.publisher.Sinks;
 
@@ -12,11 +13,11 @@ public class PacketInboundHandler extends SimpleChannelInboundHandler<ClientSide
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, ClientSidePacket packet) {
-		Sinks.Many<ChannelContext> packetSinks = ctx.channel().attr(NetworkAttributes.STATE)
+		Sinks.Many<ConnectionContext> packetSinks = ctx.channel().attr(NetworkAttributes.STATE)
 				.get().getPacketSinks(packet.getClass());
 
 		if (packetSinks != null) {
-			packetSinks.tryEmitNext(new ChannelContext<>(ctx, packet));
+			packetSinks.tryEmitNext(new NettyConnectionContext<>(ctx, packet));
 		}
 	}
 }

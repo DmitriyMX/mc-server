@@ -7,8 +7,10 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
 import lombok.extern.slf4j.Slf4j;
-import mc.protocol.NettyServer;
 import mc.protocol.State;
+import mc.protocol.api.Server;
+import mc.protocol.di.DaggerProtocolComponent;
+import mc.protocol.di.ProtocolComponent;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
@@ -38,6 +40,8 @@ public class Main {
 	private void run(OptionSet optionSet) {
 		log.info("mc-project launch");
 
+		ProtocolComponent protocolComponent = DaggerProtocolComponent.create();
+
 		ConfigModule configModule = new ConfigModule((Path) optionSet.valueOf(CLI_CONFIG));
 
 		ServerComponent serverComponent = DaggerServerComponent.builder()
@@ -46,8 +50,11 @@ public class Main {
 
 		Config config = serverComponent.getConfig();
 
-		NettyServer server = NettyServer.createServer();
+		Server server = protocolComponent.getServer();
 		PacketHandler packetHandler = serverComponent.getPacketHandler();
+
+		server.onNewConnect(connectionContext -> connectionContext.setState(State.HANDSHAKING));
+		server.onDisonnect(connectionContext -> connectionContext.setState(null));
 
 		State.HANDSHAKING.packetFlux(HandshakePacket.class).subscribe(packetHandler::onHandshake);
 		State.STATUS.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);

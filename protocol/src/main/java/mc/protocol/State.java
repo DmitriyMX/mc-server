@@ -2,6 +2,7 @@ package mc.protocol;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import mc.protocol.api.ConnectionContext;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.Packet;
 import mc.protocol.packets.PingPacket;
@@ -84,7 +85,7 @@ public enum State {
 	private final Map<Class<? extends ServerSidePacket>, Integer> serverSidePackets;
 
 	@SuppressWarnings("rawtypes")
-	private final Map<Class<? extends ClientSidePacket>, Sinks.Many<ChannelContext>> observedMap = new HashMap<>();
+	private final Map<Class<? extends ClientSidePacket>, Sinks.Many<ConnectionContext>> observedMap = new HashMap<>();
 
 	State(int id, Map<Integer, Class<? extends ClientSidePacket>> clientSidePackets) {
 		this.id = id;
@@ -104,13 +105,13 @@ public enum State {
 
 
 	@SuppressWarnings("rawtypes")
-	public <P extends ClientSidePacket> Sinks.Many<ChannelContext> getPacketSinks(Class<P> packetClass) {
+	public <P extends ClientSidePacket> Sinks.Many<ConnectionContext> getPacketSinks(Class<P> packetClass) {
 		return observedMap.get(packetClass);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <P extends ClientSidePacket> Flux<ChannelContext<P>> packetFlux(Class<P> packetClass) {
+	public <P extends ClientSidePacket> Flux<ConnectionContext<P>> packetFlux(Class<P> packetClass) {
 		return observedMap.computeIfAbsent(packetClass, aClass -> Sinks.many().multicast().directBestEffort())
-				.asFlux().map(ChannelContext.class::cast);
+				.asFlux().map(ConnectionContext.class::cast);
 	}
 }

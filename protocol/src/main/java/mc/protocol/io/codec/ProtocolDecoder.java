@@ -5,30 +5,36 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mc.protocol.NettyConnectionContext;
 import mc.protocol.NetworkAttributes;
 import mc.protocol.State;
+import mc.protocol.api.ConnectionContext;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 @Slf4j
 @RequiredArgsConstructor
 public class ProtocolDecoder extends ByteToMessageDecoder {
 
 	private final boolean readUnknownPackets;
+	private final Consumer<ConnectionContext<?>> consumerNewConnection;
+	private final Consumer<ConnectionContext<?>> consumerDisconnect;
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		ctx.channel().attr(NetworkAttributes.STATE).set(State.HANDSHAKING);
+	public void channelActive(@Nonnull ChannelHandlerContext ctx) throws Exception {
+		consumerNewConnection.accept(new NettyConnectionContext<>(ctx, null));
 		super.channelActive(ctx);
 	}
 
 	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		ctx.channel().attr(NetworkAttributes.STATE).set(null);
+	public void channelInactive(@Nonnull ChannelHandlerContext ctx) throws Exception {
+		consumerDisconnect.accept(new NettyConnectionContext<>(ctx, null));
 		super.channelInactive(ctx);
 	}
 
