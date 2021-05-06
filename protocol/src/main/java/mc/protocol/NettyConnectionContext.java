@@ -3,14 +3,12 @@ package mc.protocol;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import mc.protocol.api.ConnectionContext;
-import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.ServerSidePacket;
 
 @RequiredArgsConstructor
-public class NettyConnectionContext<P extends ClientSidePacket> implements ConnectionContext<P> {
+public class NettyConnectionContext implements ConnectionContext {
 
 	private final ChannelHandlerContext ctx;
-	private final P packet;
 
 	@Override
 	public State getState() {
@@ -20,11 +18,6 @@ public class NettyConnectionContext<P extends ClientSidePacket> implements Conne
 	@Override
 	public void setState(State state) {
 		ctx.channel().attr(NetworkAttributes.STATE).set(state);
-	}
-
-	@Override
-	public P clientPacket() {
-		return packet;
 	}
 
 	@Override

@@ -31,8 +31,8 @@ public class NettyServer implements Server {
 
 	private final PacketPool packetPool;
 	private final EventBus eventBus;
-	private Consumer<ConnectionContext<?>> consumerNewConnection;
-	private Consumer<ConnectionContext<?>> consumerDisconnect;
+	private Consumer<ConnectionContext> consumerNewConnection;
+	private Consumer<ConnectionContext> consumerDisconnect;
 
 	@Override
 	public void bind(String host, int port) {
@@ -48,12 +48,12 @@ public class NettyServer implements Server {
 	}
 
 	@Override
-	public void onNewConnect(Consumer<ConnectionContext<?>> consumer) {
+	public void onNewConnect(Consumer<ConnectionContext> consumer) {
 		this.consumerNewConnection = consumer;
 	}
 
 	@Override
-	public void onDisonnect(Consumer<ConnectionContext<?>> consumer) {
+	public void onDisonnect(Consumer<ConnectionContext> consumer) {
 		this.consumerDisconnect = consumer;
 	}
 

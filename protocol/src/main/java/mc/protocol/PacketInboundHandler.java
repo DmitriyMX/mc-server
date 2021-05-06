@@ -16,7 +16,7 @@ public class PacketInboundHandler extends SimpleChannelInboundHandler<ClientSide
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, ClientSidePacket packet) throws Exception {
 		State state = ctx.channel().attr(NetworkAttributes.STATE).get();
-		eventBus.emit(state, new NettyConnectionContext<>(ctx, packet));
+		eventBus.emit(state, new NettyConnectionContext(ctx), packet);
 
 		poolPackets.returnObject(packet);
 	}

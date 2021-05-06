@@ -8,10 +8,10 @@ public interface EventBus {
 
 	<P extends ClientSidePacket> void subscribe(State state, Class<P> packetClass, EventHandler<P> eventHandler);
 
-	<P extends ClientSidePacket> void emit(State state, ConnectionContext<P> channelContext);
+	<P extends ClientSidePacket> void emit(State state, ConnectionContext channelContext, P packet);
 
 	@FunctionalInterface
 	interface EventHandler<P extends ClientSidePacket> {
-		void handle(ConnectionContext<P> channelContext);
+		void handle(ConnectionContext channelContext, P packet);
 	}
 }

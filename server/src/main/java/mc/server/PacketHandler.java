@@ -34,20 +34,21 @@ public class PacketHandler {
 	private final Random random = new Random(System.currentTimeMillis());
 	private final Config config;
 
-	public void onHandshake(ConnectionContext<HandshakePacket> context) {
-		context.setState(context.clientPacket().getNextState());
+	public void onHandshake(ConnectionContext context, HandshakePacket packet) {
+		context.setState(packet.getNextState());
 	}
 
-	public void onKeepAlive(ConnectionContext<PingPacket> context) {
-		context.sendNow(context.clientPacket());
+	public void onKeepAlive(ConnectionContext context, PingPacket packet) {
+		context.sendNow(packet);
 		context.disconnect();
 	}
 
-	public void onKeepAlivePlay(ConnectionContext<PingPacket> context) {
-		context.sendNow(context.clientPacket());
+	public void onKeepAlivePlay(ConnectionContext context, PingPacket packet) {
+		context.sendNow(packet);
 	}
 
-	public void onServerStatus(ConnectionContext<StatusServerRequestPacket> context) {
+	@SuppressWarnings("unused")
+	public void onServerStatus(ConnectionContext context, StatusServerRequestPacket packet) {
 		ServerInfo serverInfo = new ServerInfo();
 		serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
 		serverInfo.version().protocol(ProtocolConstant.PROTOCOL_NUMBER);
@@ -66,9 +67,7 @@ public class PacketHandler {
 		context.sendNow(response);
 	}
 
-	public void onLoginStart(ConnectionContext<LoginStartPacket> context) {
-		LoginStartPacket loginStartPacket = context.clientPacket();
-
+	public void onLoginStart(ConnectionContext context, LoginStartPacket loginStartPacket) {
 		var loginSuccessPacket = new LoginSuccessPacket();
 		loginSuccessPacket.setUuid(UUID.randomUUID());
 		loginSuccessPacket.setName(loginStartPacket.getName());

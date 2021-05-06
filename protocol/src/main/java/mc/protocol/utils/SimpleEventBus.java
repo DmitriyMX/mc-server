@@ -15,11 +15,11 @@ public class SimpleEventBus implements EventBus {
 	}
 
 	@Override
-	public <P extends ClientSidePacket> void emit(State state, ConnectionContext<P> channelContext) {
-		EventHandler eventHandler = table.getColumnAndRow(state, channelContext.clientPacket().getClass());
+	public <P extends ClientSidePacket> void emit(State state, ConnectionContext channelContext, P packet) {
+		EventHandler eventHandler = table.getColumnAndRow(state, packet.getClass());
 
 		if (eventHandler != null) {
-			eventHandler.handle(channelContext);
+			eventHandler.handle(channelContext, packet);
 		}
 	}
 }

@@ -25,18 +25,18 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 
 	private final boolean readUnknownPackets;
 	private final PacketPool poolPackets;
-	private final Consumer<ConnectionContext<?>> consumerNewConnection;
-	private final Consumer<ConnectionContext<?>> consumerDisconnect;
+	private final Consumer<ConnectionContext> consumerNewConnection;
+	private final Consumer<ConnectionContext> consumerDisconnect;
 
 	@Override
 	public void channelActive(@Nonnull ChannelHandlerContext ctx) throws Exception {
-		consumerNewConnection.accept(new NettyConnectionContext<>(ctx, null));
+		consumerNewConnection.accept(new NettyConnectionContext(ctx));
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(@Nonnull ChannelHandlerContext ctx) throws Exception {
-		consumerDisconnect.accept(new NettyConnectionContext<>(ctx, null));
+		consumerDisconnect.accept(new NettyConnectionContext(ctx));
 		super.channelInactive(ctx);
 	}
 
