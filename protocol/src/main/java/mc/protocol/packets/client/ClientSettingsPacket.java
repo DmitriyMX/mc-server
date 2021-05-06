@@ -1,8 +1,8 @@
 package mc.protocol.packets.client;
 
 import lombok.*;
-import mc.protocol.ChatMode;
-import mc.protocol.MainHand;
+import mc.protocol.utils.ChatMode;
+import mc.protocol.utils.MainHand;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
 
@@ -62,6 +62,16 @@ public class ClientSettingsPacket implements ClientSidePacket {
 		this.chatColors = netByteBuf.readBoolean();
 		this.$displayedSkinPartsBitMask = netByteBuf.readUnsignedByte();
 		this.mainHand = MainHand.valueById(netByteBuf.readVarInt());
+	}
+
+	@Override
+	public void passivate() {
+		this.locale = null;
+		this.viewDistance = 0;
+		this.chatMode = null;
+		this.chatColors = false;
+		this.$displayedSkinPartsBitMask = 0;
+		this.mainHand = null;
 	}
 
 	public boolean isCapeEnabled() {

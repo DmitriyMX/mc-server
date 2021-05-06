@@ -33,4 +33,9 @@ public class TeleportConfirmPacket implements ClientSidePacket {
 	public void readSelf(NetByteBuf netByteBuf) {
 		this.teleportId = netByteBuf.readVarInt();
 	}
+
+	@Override
+	public void passivate() {
+		this.teleportId = 0;
+	}
 }

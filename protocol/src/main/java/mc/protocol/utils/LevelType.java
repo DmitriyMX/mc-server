@@ -1,4 +1,4 @@
-package mc.protocol;
+package mc.protocol.utils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

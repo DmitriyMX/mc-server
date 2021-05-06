@@ -2,68 +2,58 @@ package mc.protocol.di;
 
 import dagger.Module;
 import dagger.Provides;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
+import lombok.RequiredArgsConstructor;
+import mc.protocol.NettyConnectionContext;
 import mc.protocol.NettyServer;
 import mc.protocol.PacketInboundHandler;
+import mc.protocol.api.Server;
+import mc.protocol.event.EventBus;
+import mc.protocol.event.SimpleEventBus;
 import mc.protocol.io.codec.ProtocolDecoder;
-import mc.protocol.io.codec.ProtocolEncoder;
-import mc.protocol.io.codec.ProtocolSplitter;
+import mc.protocol.pool.PacketPool;
+import org.apache.commons.pool2.ObjectPool;
 
-import javax.annotation.Nonnull;
 import javax.inject.Provider;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Module
+@RequiredArgsConstructor
 public class ProtocolModule {
 
+	private final boolean readUnknownPackets;
+
 	@Provides
-	NettyServer provideServer(ServerBootstrap serverBootstrap) {
-		return new NettyServer(serverBootstrap);
+	@ServerScope
+	Server provideServer(
+			Provider<ProtocolDecoder> protocolDecoderProvider,
+			Provider<PacketInboundHandler> packetInboundHandlerProvider,
+			EventBus eventBus
+	) {
+		return new NettyServer(protocolDecoderProvider, packetInboundHandlerProvider, eventBus);
 	}
 
 	@Provides
-	ServerBootstrap provideServerBootstrap(ChannelInitializer<SocketChannel> channelChannelInitializer) {
-		ServerBootstrap bootstrap = new ServerBootstrap();
-
-		bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup())
-				.channel(NioServerSocketChannel.class)
-				.childHandler(channelChannelInitializer);
-
-		return bootstrap;
+	@ServerScope
+	ProtocolDecoder provideProtocolDecoder(
+			ObjectPool<NettyConnectionContext> poolNettyConnectionContext,
+			PacketPool poolPackets
+	) {
+		return new ProtocolDecoder(readUnknownPackets, poolNettyConnectionContext, poolPackets);
 	}
 
 	@Provides
-	ChannelInitializer<SocketChannel> provideChannelChannelInitializer(
-			Provider<Map<String, ChannelHandler>> channelHandlerMapProvider) {
-
-		return new ChannelInitializer<>() {
-			@Override
-			protected void initChannel(@Nonnull SocketChannel socketChannel) {
-				ChannelPipeline pipeline = socketChannel.pipeline();
-				channelHandlerMapProvider.get().forEach(pipeline::addLast);
-			}
-		};
+	@ServerScope
+	PacketInboundHandler providePacketInboundHandler(
+			ObjectPool<NettyConnectionContext> poolNettyConnectionContext,
+			PacketPool packetPool,
+			EventBus eventBus
+	) {
+		return new PacketInboundHandler(poolNettyConnectionContext, packetPool, eventBus);
 	}
 
 	@Provides
-	Map<String, ChannelHandler> provideChannelHandlerMap() {
-		Map<String, ChannelHandler> map = new LinkedHashMap<>();
-
-		map.put("packet_splitter", new ProtocolSplitter());
-		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
-		map.put("packet_decoder", new ProtocolDecoder(true));
-		map.put("packet_encoder", new ProtocolEncoder());
-		map.put("packet_handler", new PacketInboundHandler());
-
-		return map;
+	@ServerScope
+	EventBus provideEventBus() {
+		return new SimpleEventBus();
 	}
+
 }

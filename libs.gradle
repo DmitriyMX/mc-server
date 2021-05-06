@@ -19,7 +19,8 @@ ext {
             yaml       : 'org.yaml:snakeyaml:1.28',
             json       : 'com.eclipsesource.minimal-json:minimal-json:0.9.5',
             ioutils    : 'commons-io:commons-io:2.6',
-            jopt       : 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3'
+            jopt       : 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3',
+            objpool    : 'org.apache.commons:commons-pool2:2.9.0'
     ]
 
     libs.logger = [

@@ -7,8 +7,11 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
 import lombok.extern.slf4j.Slf4j;
-import mc.protocol.NettyServer;
 import mc.protocol.State;
+import mc.protocol.api.Server;
+import mc.protocol.di.DaggerProtocolComponent;
+import mc.protocol.di.ProtocolComponent;
+import mc.protocol.di.ProtocolModule;
 import mc.protocol.packets.PingPacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
@@ -46,14 +49,21 @@ public class Main {
 
 		Config config = serverComponent.getConfig();
 
-		NettyServer server = NettyServer.createServer();
+		ProtocolComponent protocolComponent = DaggerProtocolComponent.builder()
+				.protocolModule(new ProtocolModule(true))
+				.build();
+
+		Server server = protocolComponent.getServer();
 		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
-		State.HANDSHAKING.packetFlux(HandshakePacket.class).subscribe(packetHandler::onHandshake);
-		State.STATUS.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlive);
-		State.STATUS.packetFlux(StatusServerRequestPacket.class).subscribe(packetHandler::onServerStatus);
-		State.LOGIN.packetFlux(LoginStartPacket.class).subscribe(packetHandler::onLoginStart);
-		State.PLAY.packetFlux(PingPacket.class).subscribe(packetHandler::onKeepAlivePlay);
+		server.onNewConnect(connectionContext -> connectionContext.setState(State.HANDSHAKING));
+		server.onDisonnect(connectionContext -> connectionContext.setState(null));
+
+		server.listenPacket(State.HANDSHAKING, HandshakePacket.class, packetHandler::onHandshake);
+		server.listenPacket(State.STATUS, PingPacket.class, packetHandler::onKeepAlive);
+		server.listenPacket(State.STATUS, StatusServerRequestPacket.class, packetHandler::onServerStatus);
+		server.listenPacket(State.LOGIN, LoginStartPacket.class, packetHandler::onLoginStart);
+		server.listenPacket(State.PLAY, PingPacket.class, packetHandler::onKeepAlivePlay);
 
 		server.bind(config.server().host(), config.server().port());
 	}

@@ -35,6 +35,11 @@ public class PingPacket implements ClientSidePacket, ServerSidePacket {
 	}
 
 	@Override
+	public void passivate() {
+		this.payload = null;
+	}
+
+	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {
 		netByteBuf.writeLong(payload);
 	}
