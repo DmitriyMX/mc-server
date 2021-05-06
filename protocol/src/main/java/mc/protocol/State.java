@@ -81,6 +81,7 @@ public enum State {
 	@Getter
 	private final int id;
 
+	@Getter
 	private final Map<Integer, Class<? extends ClientSidePacket>> clientSidePackets;
 	private final Map<Class<? extends ServerSidePacket>, Integer> serverSidePackets;
 

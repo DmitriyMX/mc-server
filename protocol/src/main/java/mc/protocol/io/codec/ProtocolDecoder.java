@@ -12,17 +12,19 @@ import mc.protocol.api.ConnectionContext;
 import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
+import mc.protocol.utils.PacketPool;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class ProtocolDecoder extends ByteToMessageDecoder {
 
 	private final boolean readUnknownPackets;
+	private final PacketPool poolPackets;
 	private final Consumer<ConnectionContext<?>> consumerNewConnection;
 	private final Consumer<ConnectionContext<?>> consumerDisconnect;
 
@@ -49,14 +51,17 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 			log.warn("Unknown packet: State {} ; Id 0x{}", state, packetIdAsHexcode(packetId));
 
 			if (readUnknownPackets) {
-				UnknownPacket unknownPacket = new UnknownPacket(state, packetId, netByteBuf.readableBytes());
+				UnknownPacket unknownPacket = poolPackets.borrowObject(UnknownPacket.class);
+				unknownPacket.setState(state);
+				unknownPacket.setId(packetId);
+				unknownPacket.setDataSize(netByteBuf.readableBytes());
 				unknownPacket.readSelf(netByteBuf);
 				out.add(unknownPacket);
 			} else {
 				netByteBuf.skipBytes(netByteBuf.readableBytes());
 			}
 		} else {
-			ClientSidePacket packet = packetClass.getDeclaredConstructor().newInstance();
+			ClientSidePacket packet = poolPackets.borrowObject(packetClass);
 			packet.readSelf(netByteBuf);
 			log.debug("IN: {}:{}", state, packet);
 			out.add(packet);

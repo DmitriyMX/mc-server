@@ -16,6 +16,7 @@ import mc.protocol.api.Server;
 import mc.protocol.io.codec.ProtocolDecoder;
 import mc.protocol.io.codec.ProtocolEncoder;
 import mc.protocol.io.codec.ProtocolSplitter;
+import mc.protocol.utils.PacketPool;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
@@ -26,6 +27,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class NettyServer implements Server {
 
+	private final PacketPool packetPool;
 	private Consumer<ConnectionContext<?>> consumerNewConnection;
 	private Consumer<ConnectionContext<?>> consumerDisconnect;
 
@@ -77,9 +79,9 @@ public class NettyServer implements Server {
 
 		map.put("packet_splitter", new ProtocolSplitter());
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
-		map.put("packet_decoder", new ProtocolDecoder(true, consumerNewConnection, consumerDisconnect));
+		map.put("packet_decoder", new ProtocolDecoder(true, packetPool, consumerNewConnection, consumerDisconnect));
 		map.put("packet_encoder", new ProtocolEncoder());
-		map.put("packet_handler", new PacketInboundHandler());
+		map.put("packet_handler", new PacketInboundHandler(packetPool));
 
 		return map;
 	}

@@ -5,6 +5,7 @@ dependencies {
 
     implementation libs.netty
     implementation libs.json
+    implementation libs.objpool
 
     testImplementation libs.lang3
 }

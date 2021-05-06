@@ -47,4 +47,12 @@ public class HandshakePacket implements ClientSidePacket {
 		nextState = State.getById(netByteBuf.readVarInt());
 	}
 
+	@Override
+	public void passivate() {
+		this.protocolVersion = 0;
+		this.host = null;
+		this.port = 0;
+		this.nextState = null;
+	}
+
 }

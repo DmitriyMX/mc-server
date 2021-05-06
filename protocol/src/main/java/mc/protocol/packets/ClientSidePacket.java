@@ -8,4 +8,6 @@ import mc.protocol.io.NetByteBuf;
 public interface ClientSidePacket extends Packet {
 
 	void readSelf(NetByteBuf netByteBuf);
+
+	void passivate();
 }

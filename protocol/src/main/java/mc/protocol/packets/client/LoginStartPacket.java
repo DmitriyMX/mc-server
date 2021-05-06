@@ -34,4 +34,9 @@ public class LoginStartPacket implements ClientSidePacket {
 		this.name = netByteBuf.readString();
 	}
 
+	@Override
+	public void passivate() {
+		this.name = null;
+	}
+
 }
