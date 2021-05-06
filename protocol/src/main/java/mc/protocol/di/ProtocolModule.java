@@ -2,12 +2,14 @@ package mc.protocol.di;
 
 import dagger.Module;
 import dagger.Provides;
+import mc.protocol.NettyConnectionContext;
 import mc.protocol.NettyServer;
 import mc.protocol.State;
 import mc.protocol.api.Server;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
 import mc.protocol.event.EventBus;
+import mc.protocol.pool.NettyConnectionContextFactory;
 import mc.protocol.pool.PacketFactory;
 import mc.protocol.pool.PacketPool;
 import mc.protocol.event.SimpleEventBus;
@@ -23,8 +25,8 @@ public class ProtocolModule {
 
 	@Provides
 	@ServerScope
-	Server provideServer(PacketPool packetPool, EventBus eventBus) {
-		return new NettyServer(packetPool, eventBus);
+	Server provideServer(ObjectPool<NettyConnectionContext> poolNettyConnectionContext, PacketPool packetPool, EventBus eventBus) {
+		return new NettyServer(poolNettyConnectionContext, packetPool, eventBus);
 	}
 
 	@Provides
@@ -46,5 +48,11 @@ public class ProtocolModule {
 	@ServerScope
 	EventBus provideEventBus() {
 		return new SimpleEventBus();
+	}
+
+	@Provides
+	@ServerScope
+	ObjectPool<NettyConnectionContext> providePoolNettyConnectionContext() {
+		return new GenericObjectPool<>(new NettyConnectionContextFactory());
 	}
 }

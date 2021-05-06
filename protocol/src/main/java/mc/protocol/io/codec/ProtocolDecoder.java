@@ -13,6 +13,7 @@ import mc.protocol.io.NetByteBuf;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.packets.UnknownPacket;
 import mc.protocol.pool.PacketPool;
+import org.apache.commons.pool2.ObjectPool;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -24,19 +25,26 @@ import java.util.function.Consumer;
 public class ProtocolDecoder extends ByteToMessageDecoder {
 
 	private final boolean readUnknownPackets;
+	private final ObjectPool<NettyConnectionContext> poolNettyConnectionContext;
 	private final PacketPool poolPackets;
 	private final Consumer<ConnectionContext> consumerNewConnection;
 	private final Consumer<ConnectionContext> consumerDisconnect;
 
 	@Override
 	public void channelActive(@Nonnull ChannelHandlerContext ctx) throws Exception {
-		consumerNewConnection.accept(new NettyConnectionContext(ctx));
+		NettyConnectionContext context = poolNettyConnectionContext.borrowObject().setCtx(ctx);
+		consumerNewConnection.accept(context);
+
+		poolNettyConnectionContext.returnObject(context);
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(@Nonnull ChannelHandlerContext ctx) throws Exception {
-		consumerDisconnect.accept(new NettyConnectionContext(ctx));
+		NettyConnectionContext context = poolNettyConnectionContext.borrowObject().setCtx(ctx);
+		consumerDisconnect.accept(context);
+
+		poolNettyConnectionContext.returnObject(context);
 		super.channelInactive(ctx);
 	}
 

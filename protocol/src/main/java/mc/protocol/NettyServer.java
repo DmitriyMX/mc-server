@@ -19,6 +19,7 @@ import mc.protocol.io.codec.ProtocolSplitter;
 import mc.protocol.packets.ClientSidePacket;
 import mc.protocol.event.EventBus;
 import mc.protocol.pool.PacketPool;
+import org.apache.commons.pool2.ObjectPool;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
@@ -29,6 +30,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class NettyServer implements Server {
 
+	private final ObjectPool<NettyConnectionContext> poolNettyConnectionContext;
 	private final PacketPool packetPool;
 	private final EventBus eventBus;
 	private Consumer<ConnectionContext> consumerNewConnection;
@@ -88,9 +90,9 @@ public class NettyServer implements Server {
 
 		map.put("packet_splitter", new ProtocolSplitter());
 		map.put("logger", new LoggingHandler(LogLevel.DEBUG));
-		map.put("packet_decoder", new ProtocolDecoder(true, packetPool, consumerNewConnection, consumerDisconnect));
+		map.put("packet_decoder", new ProtocolDecoder(true, poolNettyConnectionContext, packetPool, consumerNewConnection, consumerDisconnect));
 		map.put("packet_encoder", new ProtocolEncoder());
-		map.put("packet_handler", new PacketInboundHandler(packetPool, eventBus));
+		map.put("packet_handler", new PacketInboundHandler(poolNettyConnectionContext, packetPool, eventBus));
 
 		return map;
 	}

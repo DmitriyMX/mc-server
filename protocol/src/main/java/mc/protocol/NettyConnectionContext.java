@@ -1,14 +1,19 @@
 package mc.protocol;
 
 import io.netty.channel.ChannelHandlerContext;
-import lombok.RequiredArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import mc.protocol.api.ConnectionContext;
 import mc.protocol.packets.ServerSidePacket;
+import mc.protocol.pool.Passivable;
 
-@RequiredArgsConstructor
-public class NettyConnectionContext implements ConnectionContext {
+@EqualsAndHashCode
+public class NettyConnectionContext implements ConnectionContext, Passivable {
 
-	private final ChannelHandlerContext ctx;
+	@Accessors(chain = true)
+	@Setter
+	private ChannelHandlerContext ctx;
 
 	@Override
 	public State getState() {
@@ -38,5 +43,10 @@ public class NettyConnectionContext implements ConnectionContext {
 	@Override
 	public void disconnect() {
 		ctx.disconnect();
+	}
+
+	@Override
+	public void passivate() {
+		this.ctx = null;
 	}
 }
