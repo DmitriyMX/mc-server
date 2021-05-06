@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import mc.protocol.NettyConnectionContext;
 import mc.protocol.NetworkAttributes;
@@ -27,8 +28,11 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 	private final boolean readUnknownPackets;
 	private final ObjectPool<NettyConnectionContext> poolNettyConnectionContext;
 	private final PacketPool poolPackets;
-	private final Consumer<ConnectionContext> consumerNewConnection;
-	private final Consumer<ConnectionContext> consumerDisconnect;
+
+	@Setter
+	private Consumer<ConnectionContext> consumerNewConnection;
+	@Setter
+	private Consumer<ConnectionContext> consumerDisconnect;
 
 	@Override
 	public void channelActive(@Nonnull ChannelHandlerContext ctx) throws Exception {

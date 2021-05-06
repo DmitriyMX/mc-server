@@ -2,46 +2,52 @@ package mc.protocol.di;
 
 import dagger.Module;
 import dagger.Provides;
+import lombok.RequiredArgsConstructor;
 import mc.protocol.NettyConnectionContext;
 import mc.protocol.NettyServer;
-import mc.protocol.State;
+import mc.protocol.PacketInboundHandler;
 import mc.protocol.api.Server;
-import mc.protocol.packets.ClientSidePacket;
-import mc.protocol.packets.UnknownPacket;
 import mc.protocol.event.EventBus;
-import mc.protocol.pool.NettyConnectionContextFactory;
-import mc.protocol.pool.PacketFactory;
-import mc.protocol.pool.PacketPool;
 import mc.protocol.event.SimpleEventBus;
+import mc.protocol.io.codec.ProtocolDecoder;
+import mc.protocol.pool.PacketPool;
 import org.apache.commons.pool2.ObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.inject.Provider;
 
 @Module
+@RequiredArgsConstructor
 public class ProtocolModule {
+
+	private final boolean readUnknownPackets;
 
 	@Provides
 	@ServerScope
-	Server provideServer(ObjectPool<NettyConnectionContext> poolNettyConnectionContext, PacketPool packetPool, EventBus eventBus) {
-		return new NettyServer(poolNettyConnectionContext, packetPool, eventBus);
+	Server provideServer(
+			Provider<ProtocolDecoder> protocolDecoderProvider,
+			Provider<PacketInboundHandler> packetInboundHandlerProvider,
+			EventBus eventBus
+	) {
+		return new NettyServer(protocolDecoderProvider, packetInboundHandlerProvider, eventBus);
 	}
 
 	@Provides
 	@ServerScope
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	PacketPool providePacketPool() {
-		Map<Class<? extends ClientSidePacket>, ObjectPool> map = Stream.of(State.values())
-				.flatMap(state -> state.getClientSidePackets().values().stream())
-				.distinct()
-				.collect(Collectors.toMap(
-						packetClass -> packetClass,
-						packetClass -> new GenericObjectPool(new PacketFactory<>(packetClass))));
-		map.put(UnknownPacket.class, new GenericObjectPool(new PacketFactory<>(UnknownPacket.class)));
+	ProtocolDecoder provideProtocolDecoder(
+			ObjectPool<NettyConnectionContext> poolNettyConnectionContext,
+			PacketPool poolPackets
+	) {
+		return new ProtocolDecoder(readUnknownPackets, poolNettyConnectionContext, poolPackets);
+	}
 
-		return new PacketPool(map);
+	@Provides
+	@ServerScope
+	PacketInboundHandler providePacketInboundHandler(
+			ObjectPool<NettyConnectionContext> poolNettyConnectionContext,
+			PacketPool packetPool,
+			EventBus eventBus
+	) {
+		return new PacketInboundHandler(poolNettyConnectionContext, packetPool, eventBus);
 	}
 
 	@Provides
@@ -50,9 +56,4 @@ public class ProtocolModule {
 		return new SimpleEventBus();
 	}
 
-	@Provides
-	@ServerScope
-	ObjectPool<NettyConnectionContext> providePoolNettyConnectionContext() {
-		return new GenericObjectPool<>(new NettyConnectionContextFactory());
-	}
 }
