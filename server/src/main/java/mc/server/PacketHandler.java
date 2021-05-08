@@ -77,14 +77,14 @@ public class PacketHandler {
 
 		var joinGamePacket = new JoinGamePacket();
 		joinGamePacket.setEntityId(random.nextInt());
-		joinGamePacket.setGameMode(GameMode.SPECTATOR);
+		joinGamePacket.setGameMode(GameMode.SURVIVAL);
 		joinGamePacket.setDimension(0/*Overworld*/);
 		joinGamePacket.setDifficulty(Difficulty.PEACEFUL);
 		joinGamePacket.setLevelType(LevelType.FLAT);
 
 		context.send(joinGamePacket);
 
-		Location spawnLocation = new Location(0d, 63d, 0d);
+		Location spawnLocation = new Location(7d, 130d, 7d);
 
 		var spawnPositionPacket = new SpawnPositionPacket();
 		spawnPositionPacket.setSpawn(spawnLocation);
