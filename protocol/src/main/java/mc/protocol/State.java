@@ -50,7 +50,8 @@ public enum State {
 					0x0B, PingPacket.class,
 					0x0D, PlayerPositionPacket.class,
 					0x0E, CPlayerPositionAndLookPacket.class,
-					0x0F, PlayerLookPacket.class
+					0x0F, PlayerLookPacket.class,
+					0x15, EntityActionPacket.class
 			),
 			// client bound
 			Map.of(
