@@ -55,11 +55,11 @@ public enum State {
 			// client bound
 			Map.of(
 					PingPacket.class, 0x1F,
-					JoinGamePacket.class, 0x23,
-					SpawnPositionPacket.class, 0x46,
 					ChunkDataPacket.class, 0x20,
+					JoinGamePacket.class, 0x23,
 					PlayerAbilitiesPacket.class,0x2C,
-					SPlayerPositionAndLookPacket.class, 0x2F
+					SPlayerPositionAndLookPacket.class, 0x2F,
+					SpawnPositionPacket.class, 0x46
 			)
 	);
 
