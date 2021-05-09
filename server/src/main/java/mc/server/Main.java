@@ -7,20 +7,20 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
 import lombok.extern.slf4j.Slf4j;
-import mc.protocol.NettyServer;
-import mc.protocol.ProtocolConstant;
-import mc.protocol.model.ServerInfo;
-import mc.protocol.packets.PingPacket;
+import mc.protocol.State;
+import mc.protocol.api.Server;
+import mc.protocol.di.DaggerProtocolComponent;
+import mc.protocol.di.ProtocolComponent;
+import mc.protocol.di.ProtocolModule;
+import mc.protocol.packets.KeepAlivePacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
-import mc.protocol.packets.server.DisconnectPacket;
-import mc.protocol.packets.server.StatusServerResponse;
-import mc.protocol.serializer.TextSerializer;
 import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
 import mc.server.di.ServerComponent;
+import mc.server.service.PlayerManager;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +30,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,46 +49,26 @@ public class Main {
 				.build();
 
 		Config config = serverComponent.getConfig();
+		PlayerManager playerManager = serverComponent.getPlayerManager();
 
-		NettyServer server = NettyServer.createServer();
+		ProtocolComponent protocolComponent = DaggerProtocolComponent.builder()
+				.protocolModule(new ProtocolModule(true))
+				.build();
 
-		server.packetFlux(HandshakePacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> channel.setState(channel.getPacket().getNextState()));
+		Server server = protocolComponent.getServer();
+		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
-		server.packetFlux(PingPacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> channel.getCtx().writeAndFlush(channel.getPacket()).channel().disconnect());
+		server.onNewConnect(connectionContext -> connectionContext.setState(State.HANDSHAKING));
+		server.onDisonnect(connectionContext -> {
+			connectionContext.setState(null);
+			connectionContext.getCustomProperty("player", Player.class).ifPresent(playerManager::remove);
+		});
 
-		server.packetFlux(StatusServerRequestPacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> {
-					ServerInfo serverInfo = new ServerInfo();
-					serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
-					serverInfo.version().protocol(ProtocolConstant.PROTOCOL_NUMBER);
-					serverInfo.players().max(config.players().maxOnlile());
-					serverInfo.players().online(config.players().onlile());
-					serverInfo.players().sample(Collections.emptyList());
-					serverInfo.description(TextSerializer.fromPlain(config.motd()));
-
-					if (config.iconPath() != null) {
-						serverInfo.favicon(faviconToBase64(config.iconPath()));
-					}
-
-					StatusServerResponse response = new StatusServerResponse();
-					response.setInfo(serverInfo);
-
-					channel.getCtx().writeAndFlush(response);
-				});
-
-		server.packetFlux(LoginStartPacket.class)
-				.doOnNext(channel -> log.info("{}", channel.getPacket()))
-				.subscribe(channel -> {
-					DisconnectPacket disconnectPacket = new DisconnectPacket();
-					disconnectPacket.setReason(TextSerializer.fromPlain(config.disconnectReason()));
-
-					channel.getCtx().writeAndFlush(disconnectPacket).channel().disconnect();
-				});
+		server.listenPacket(State.HANDSHAKING, HandshakePacket.class, packetHandler::onHandshake);
+		server.listenPacket(State.STATUS, KeepAlivePacket.class, packetHandler::onKeepAlive);
+		server.listenPacket(State.STATUS, StatusServerRequestPacket.class, packetHandler::onServerStatus);
+		server.listenPacket(State.LOGIN, LoginStartPacket.class, packetHandler::onLoginStart);
+		server.listenPacket(State.PLAY, KeepAlivePacket.class, packetHandler::onKeepAlivePlay);
 
 		server.bind(config.server().host(), config.server().port());
 	}
@@ -157,17 +135,6 @@ public class Main {
 				.defaultsTo(Paths.get("logback.xml"));
 
 		return optionParser;
-	}
-
-	private static String faviconToBase64(Path iconPath) {
-		try {
-			return "data:image/png;base64," +
-					Base64.getEncoder().encodeToString(
-							IOUtils.toByteArray(Files.newInputStream(iconPath)));
-		} catch (IOException e) {
-			log.error("Can't read icon '{}'", iconPath.toAbsolutePath(), e);
-			return "";
-		}
 	}
 
 	private static boolean initializeCheckFiles(Path... paths) {

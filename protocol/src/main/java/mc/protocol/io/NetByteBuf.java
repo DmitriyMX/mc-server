@@ -32,6 +32,8 @@ import java.util.UUID;
  * |                |                       |                                                     | этого числа).                                                            |
  * | VarInt         | >= 1 ; <= 5           | Число от -2147483648 и 2147483647                   | 32-bit число с плавающей размерностью от 1 до 5 байт                     |
  * | VarLong        | >= 1 ; <= 10          | Число от -9223372036854775808 и 9223372036854775807 | 64-bit число с плавающей размерностью от 1 до 10 байт                    |
+ * | Position       | 8                     | 64-bit число разделённое на три части: x, y, z      | Кодируется формулой:                                                     |
+ * |                |                       |                                                     |   ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (z & 0x3FFFFFF)        |
  *
  * [1] - <a href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">Single-precision floating-point format</a>
  * [2] - <a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">Double-precision floating-point format</a>
@@ -48,6 +50,10 @@ public class NetByteBuf extends ByteBuf {
 
 	@Delegate
 	private final ByteBuf byteBuf;
+
+	public void writeUnsignedByte(int value) {
+		byteBuf.writeByte((byte)(value & 0xFF));
+	}
 
 	//region String
 	public String readString() {

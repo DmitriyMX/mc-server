@@ -27,10 +27,15 @@ public class ConfigModule {
 
 		config.server().host(fromYamlPath("server/host", map, "127.0.0.1"));
 		config.server().port(fromYamlPath("server/port", map, 25565));
+
 		config.motd(fromYamlPath("motd", map, ""));
 		config.disconnectReason(fromYamlPath("disconnect-reason", map, ""));
+
 		config.players().maxOnlile(fromYamlPath("players/max-online", map, 0));
-		config.players().onlile(fromYamlPath("players/online", map, 0));
+		config.players().fakeOnline().enable(fromYamlPath("players/fake-online/enable", map, false));
+		config.players().fakeOnline().value(fromYamlPath("players/fake-online/value", map, 0));
+
+		config.world().viewDistance(fromYamlPath("world/view-distance", map, 0));
 
 		if (Boolean.TRUE.equals(fromYamlPath("icon/enable", map, false))) {
 			config.iconPath(Paths.get(fromYamlPath("icon/path", map, "favicon.png")));

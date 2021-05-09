@@ -15,6 +15,7 @@ public class Config {
 
 	private final Server server = new Server();
 	private final Players players = new Players();
+	private final World world = new World();
 
 	private String motd;
 	private String disconnectReason;
@@ -32,7 +33,23 @@ public class Config {
 	@Setter
 	@ToString
 	public static class Players {
+		private final FakeOnline fakeOnline = new FakeOnline();
+
 		private int maxOnlile;
-		private int onlile;
+	}
+
+	@Getter
+	@Setter
+	@ToString
+	public static class FakeOnline {
+		private boolean enable;
+		private int value;
+	}
+
+	@Getter
+	@Setter
+	@ToString
+	public static class World {
+		private int viewDistance;
 	}
 }
