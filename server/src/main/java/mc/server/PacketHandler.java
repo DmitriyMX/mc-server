@@ -26,6 +26,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,7 +45,14 @@ public class PacketHandler {
 	}
 
 	public void onKeepAlivePlay(ConnectionContext context, PingPacket packet) {
-		context.sendNow(packet);
+		try {
+			TimeUnit.MILLISECONDS.sleep(50);
+			context.sendNow(packet);
+		} catch (InterruptedException e) {
+			if (log.isTraceEnabled()) {
+				log.trace("{}", e.getMessage(), e);
+			}
+		}
 	}
 
 	@SuppressWarnings("unused")
