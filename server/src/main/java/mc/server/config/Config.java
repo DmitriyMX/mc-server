@@ -33,8 +33,17 @@ public class Config {
 	@Setter
 	@ToString
 	public static class Players {
+		private final FakeOnline fakeOnline = new FakeOnline();
+
 		private int maxOnlile;
-		private int onlile;
+	}
+
+	@Getter
+	@Setter
+	@ToString
+	public static class FakeOnline {
+		private boolean enable;
+		private int value;
 	}
 
 	@Getter

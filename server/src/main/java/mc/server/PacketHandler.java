@@ -63,7 +63,9 @@ public class PacketHandler {
 		serverInfo.version().name(ProtocolConstant.PROTOCOL_NAME);
 		serverInfo.version().protocol(ProtocolConstant.PROTOCOL_NUMBER);
 		serverInfo.players().max(config.players().maxOnlile());
-		serverInfo.players().online(config.players().onlile());
+		if (config.players().fakeOnline().enable()) {
+			serverInfo.players().online(config.players().fakeOnline().value());
+		}
 		serverInfo.players().sample(Collections.emptyList());
 		serverInfo.description(TextSerializer.fromPlain(config.motd()));
 

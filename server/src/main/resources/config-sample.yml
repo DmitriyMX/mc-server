@@ -10,7 +10,9 @@ disconnect-reason: '&4Server is not available.'
 
 players:
   max-online: 0
-  online: 0
+  fake-online:
+    enable: true
+    value: 0
 
 # Размер значка: 64x64 px
 icon:
