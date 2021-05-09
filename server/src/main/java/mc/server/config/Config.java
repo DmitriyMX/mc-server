@@ -15,6 +15,7 @@ public class Config {
 
 	private final Server server = new Server();
 	private final Players players = new Players();
+	private final World world = new World();
 
 	private String motd;
 	private String disconnectReason;
@@ -34,5 +35,12 @@ public class Config {
 	public static class Players {
 		private int maxOnlile;
 		private int onlile;
+	}
+
+	@Getter
+	@Setter
+	@ToString
+	public static class World {
+		private int viewDistance;
 	}
 }

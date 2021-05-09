@@ -31,6 +31,7 @@ public class ConfigModule {
 		config.disconnectReason(fromYamlPath("disconnect-reason", map, ""));
 		config.players().maxOnlile(fromYamlPath("players/max-online", map, 0));
 		config.players().onlile(fromYamlPath("players/online", map, 0));
+		config.world().viewDistance(fromYamlPath("world/view-distance", map, 0));
 
 		if (Boolean.TRUE.equals(fromYamlPath("icon/enable", map, false))) {
 			config.iconPath(Paths.get(fromYamlPath("icon/path", map, "favicon.png")));

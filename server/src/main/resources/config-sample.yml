@@ -16,3 +16,6 @@ players:
 icon:
   enable: false
   path: favicon.png
+
+world:
+  view-distance: 1
