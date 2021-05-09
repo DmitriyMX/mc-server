@@ -25,7 +25,7 @@ import mc.protocol.io.NetByteBuf;
  * @see <a href="https://wiki.vg/index.php?title=Protocol&oldid=7368#Keep_Alive">Keep Alive</a>
  */
 @Data
-public class PingPacket implements ClientSidePacket, ServerSidePacket {
+public class KeepAlivePacket implements ClientSidePacket, ServerSidePacket {
 
 	private Long payload;
 

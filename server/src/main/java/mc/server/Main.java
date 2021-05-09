@@ -12,7 +12,7 @@ import mc.protocol.api.Server;
 import mc.protocol.di.DaggerProtocolComponent;
 import mc.protocol.di.ProtocolComponent;
 import mc.protocol.di.ProtocolModule;
-import mc.protocol.packets.PingPacket;
+import mc.protocol.packets.KeepAlivePacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
@@ -60,10 +60,10 @@ public class Main {
 		server.onDisonnect(connectionContext -> connectionContext.setState(null));
 
 		server.listenPacket(State.HANDSHAKING, HandshakePacket.class, packetHandler::onHandshake);
-		server.listenPacket(State.STATUS, PingPacket.class, packetHandler::onKeepAlive);
+		server.listenPacket(State.STATUS, KeepAlivePacket.class, packetHandler::onKeepAlive);
 		server.listenPacket(State.STATUS, StatusServerRequestPacket.class, packetHandler::onServerStatus);
 		server.listenPacket(State.LOGIN, LoginStartPacket.class, packetHandler::onLoginStart);
-		server.listenPacket(State.PLAY, PingPacket.class, packetHandler::onKeepAlivePlay);
+		server.listenPacket(State.PLAY, KeepAlivePacket.class, packetHandler::onKeepAlivePlay);
 
 		server.bind(config.server().host(), config.server().port());
 	}

@@ -7,7 +7,7 @@ import mc.protocol.api.ConnectionContext;
 import mc.protocol.model.Location;
 import mc.protocol.model.Look;
 import mc.protocol.model.ServerInfo;
-import mc.protocol.packets.PingPacket;
+import mc.protocol.packets.KeepAlivePacket;
 import mc.protocol.packets.client.HandshakePacket;
 import mc.protocol.packets.client.LoginStartPacket;
 import mc.protocol.packets.client.StatusServerRequestPacket;
@@ -39,12 +39,12 @@ public class PacketHandler {
 		context.setState(packet.getNextState());
 	}
 
-	public void onKeepAlive(ConnectionContext context, PingPacket packet) {
+	public void onKeepAlive(ConnectionContext context, KeepAlivePacket packet) {
 		context.sendNow(packet);
 		context.disconnect();
 	}
 
-	public void onKeepAlivePlay(ConnectionContext context, PingPacket packet) {
+	public void onKeepAlivePlay(ConnectionContext context, KeepAlivePacket packet) {
 		try {
 			TimeUnit.MILLISECONDS.sleep(50);
 			context.sendNow(packet);
@@ -124,10 +124,10 @@ public class PacketHandler {
 
 		context.send(playerPositionAndLookPacket);
 
-		PingPacket pingPacket = new PingPacket();
-		pingPacket.setPayload(System.currentTimeMillis());
+		KeepAlivePacket keepAlivePacket = new KeepAlivePacket();
+		keepAlivePacket.setPayload(System.currentTimeMillis());
 
-		context.send(pingPacket);
+		context.send(keepAlivePacket);
 
 		context.flushSending();
 	}
