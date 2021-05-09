@@ -1,12 +1,13 @@
 # MC-SERVER
 
-![version: 1.0-SNAPSHOT](https://img.shields.io/badge/version-1.0-05b.svg?style=flat)
-![codename: ZERO](https://img.shields.io/badge/codename-ZERO-509.svg?style=flat)
+![version: 1.1](https://img.shields.io/badge/version-1.1-05b.svg?style=flat)
+![codename: VOID](https://img.shields.io/badge/codename-VOID-509.svg?style=flat)
 ![protocol: 1.12.2](https://img.shields.io/badge/protocol-1.12.2-075.svg?style=flat)
 
 Написанный с нуля сервер **Minecraft 1.12.2**.
 
-На данный момент может только показывать информацию о себе. Подключение к серверу не возможно.
+На данный момент сервер может показывать о себе информацию в списке серверов (motd, онлайн, иконка) и позволять
+игрокам подключиться к себе. Загружается пустой мир.
 
 ---
 
