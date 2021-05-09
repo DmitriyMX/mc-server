@@ -17,6 +17,7 @@ import mc.protocol.pool.PacketPool;
 import org.apache.commons.pool2.ObjectPool;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -36,6 +37,8 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 
 	@Override
 	public void channelActive(@Nonnull ChannelHandlerContext ctx) throws Exception {
+		ctx.channel().attr(NetworkAttributes.CUSTOM_PROPERTIES).set(new HashMap<>());
+
 		NettyConnectionContext context = poolNettyConnectionContext.borrowObject().setCtx(ctx);
 		consumerNewConnection.accept(context);
 
@@ -47,6 +50,9 @@ public class ProtocolDecoder extends ByteToMessageDecoder {
 	public void channelInactive(@Nonnull ChannelHandlerContext ctx) throws Exception {
 		NettyConnectionContext context = poolNettyConnectionContext.borrowObject().setCtx(ctx);
 		consumerDisconnect.accept(context);
+
+		ctx.channel().attr(NetworkAttributes.CUSTOM_PROPERTIES).get().clear();
+		ctx.channel().attr(NetworkAttributes.CUSTOM_PROPERTIES).set(null);
 
 		poolNettyConnectionContext.returnObject(context);
 		super.channelInactive(ctx);

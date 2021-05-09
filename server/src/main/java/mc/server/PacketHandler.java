@@ -18,6 +18,7 @@ import mc.protocol.utils.GameMode;
 import mc.protocol.world.Chunk;
 import mc.protocol.world.World;
 import mc.server.config.Config;
+import mc.server.service.PlayerManager;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -36,6 +36,7 @@ public class PacketHandler {
 	private final Random random = new Random(System.currentTimeMillis());
 	private final Config config;
 	private final World world;
+	private final PlayerManager playerManager;
 
 	public void onHandshake(ConnectionContext context, HandshakePacket packet) {
 		context.setState(packet.getNextState());
@@ -65,6 +66,8 @@ public class PacketHandler {
 		serverInfo.players().max(config.players().maxOnlile());
 		if (config.players().fakeOnline().enable()) {
 			serverInfo.players().online(config.players().fakeOnline().value());
+		} else {
+			serverInfo.players().online(playerManager.online());
 		}
 		serverInfo.players().sample(Collections.emptyList());
 		serverInfo.description(TextSerializer.fromPlain(config.motd()));
@@ -81,16 +84,19 @@ public class PacketHandler {
 
 	@SuppressWarnings("java:S2589")
 	public void onLoginStart(ConnectionContext context, LoginStartPacket loginStartPacket) {
+		Player player = playerManager.addAndCreate(context, loginStartPacket.getName(), GameMode.SURVIVAL, world.getSpawn());
+		context.setCustomProperty("player", player);
+
 		var loginSuccessPacket = new LoginSuccessPacket();
-		loginSuccessPacket.setUuid(UUID.randomUUID());
-		loginSuccessPacket.setName(loginStartPacket.getName());
+		loginSuccessPacket.setUuid(player.getUuid());
+		loginSuccessPacket.setName(player.getName());
 
 		context.sendNow(loginSuccessPacket);
 		context.setState(State.PLAY);
 
 		var joinGamePacket = new JoinGamePacket();
 		joinGamePacket.setEntityId(random.nextInt());
-		joinGamePacket.setGameMode(GameMode.SURVIVAL);
+		joinGamePacket.setGameMode(player.getGameMode());
 		joinGamePacket.setDimension(0/*Overworld*/);
 		joinGamePacket.setDifficulty(Difficulty.PEACEFUL);
 		joinGamePacket.setLevelType(world.getLevelType());
@@ -98,7 +104,7 @@ public class PacketHandler {
 		context.send(joinGamePacket);
 
 		var spawnPositionPacket = new SpawnPositionPacket();
-		spawnPositionPacket.setSpawn(world.getSpawn());
+		spawnPositionPacket.setSpawn(player.getLocation());
 
 		context.send(spawnPositionPacket);
 
@@ -114,7 +120,7 @@ public class PacketHandler {
 
 		context.flushSending();
 
-		Location chunkLocation = world.getSpawn().toChunkXZ();
+		Location chunkLocation = player.getLocation().toChunkXZ();
 		Chunk chunk = world.getChunk(chunkLocation.getIntX(), chunkLocation.getIntZ());
 
 		var chunkDataPacket = new ChunkDataPacket();
@@ -145,7 +151,7 @@ public class PacketHandler {
 		context.flushSending();
 
 		var playerPositionAndLookPacket = new SPlayerPositionAndLookPacket();
-		playerPositionAndLookPacket.setPosition(world.getSpawn());
+		playerPositionAndLookPacket.setPosition(player.getLocation());
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
 		playerPositionAndLookPacket.setTeleportId(random.nextInt());
 

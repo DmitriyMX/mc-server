@@ -28,7 +28,9 @@ public class PacketInboundHandler extends SimpleChannelInboundHandler<ClientSide
 		NettyConnectionContext context = poolNettyConnectionContext.borrowObject().setCtx(ctx);
 		eventBus.emit(state, context, packet);
 
-		poolNettyConnectionContext.returnObject(context);
+		if (!context.isUsedContext()) {
+			poolNettyConnectionContext.returnObject(context);
+		}
 		poolPackets.returnObject(packet);
 	}
 

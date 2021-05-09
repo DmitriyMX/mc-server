@@ -20,6 +20,7 @@ import mc.server.config.Config;
 import mc.server.di.ConfigModule;
 import mc.server.di.DaggerServerComponent;
 import mc.server.di.ServerComponent;
+import mc.server.service.PlayerManager;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,7 @@ public class Main {
 				.build();
 
 		Config config = serverComponent.getConfig();
+		PlayerManager playerManager = serverComponent.getPlayerManager();
 
 		ProtocolComponent protocolComponent = DaggerProtocolComponent.builder()
 				.protocolModule(new ProtocolModule(true))
@@ -57,7 +59,10 @@ public class Main {
 		PacketHandler packetHandler = serverComponent.getPacketHandler();
 
 		server.onNewConnect(connectionContext -> connectionContext.setState(State.HANDSHAKING));
-		server.onDisonnect(connectionContext -> connectionContext.setState(null));
+		server.onDisonnect(connectionContext -> {
+			connectionContext.setState(null);
+			connectionContext.getCustomProperty("player", Player.class).ifPresent(playerManager::remove);
+		});
 
 		server.listenPacket(State.HANDSHAKING, HandshakePacket.class, packetHandler::onHandshake);
 		server.listenPacket(State.STATUS, KeepAlivePacket.class, packetHandler::onKeepAlive);
