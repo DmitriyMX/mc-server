@@ -15,7 +15,8 @@ import mc.protocol.packets.server.*;
 import mc.protocol.serializer.TextSerializer;
 import mc.protocol.utils.Difficulty;
 import mc.protocol.utils.GameMode;
-import mc.protocol.utils.LevelType;
+import mc.protocol.world.Chunk;
+import mc.protocol.world.World;
 import mc.server.config.Config;
 import org.apache.commons.io.IOUtils;
 
@@ -34,6 +35,7 @@ public class PacketHandler {
 
 	private final Random random = new Random(System.currentTimeMillis());
 	private final Config config;
+	private final World world;
 
 	public void onHandshake(ConnectionContext context, HandshakePacket packet) {
 		context.setState(packet.getNextState());
@@ -75,6 +77,7 @@ public class PacketHandler {
 		context.sendNow(response);
 	}
 
+	@SuppressWarnings("java:S2589")
 	public void onLoginStart(ConnectionContext context, LoginStartPacket loginStartPacket) {
 		var loginSuccessPacket = new LoginSuccessPacket();
 		loginSuccessPacket.setUuid(UUID.randomUUID());
@@ -88,14 +91,12 @@ public class PacketHandler {
 		joinGamePacket.setGameMode(GameMode.SURVIVAL);
 		joinGamePacket.setDimension(0/*Overworld*/);
 		joinGamePacket.setDifficulty(Difficulty.PEACEFUL);
-		joinGamePacket.setLevelType(LevelType.FLAT);
+		joinGamePacket.setLevelType(world.getLevelType());
 
 		context.send(joinGamePacket);
 
-		Location spawnLocation = new Location(7d, 130d, 7d);
-
 		var spawnPositionPacket = new SpawnPositionPacket();
-		spawnPositionPacket.setSpawn(spawnLocation);
+		spawnPositionPacket.setSpawn(world.getSpawn());
 
 		context.send(spawnPositionPacket);
 
@@ -111,14 +112,38 @@ public class PacketHandler {
 
 		context.flushSending();
 
-		var chunkDataPacket = new ChunkDataPacket();
-		chunkDataPacket.setX(0);
-		chunkDataPacket.setZ(0);
+		Location chunkLocation = world.getSpawn().toChunkXZ();
+		Chunk chunk = world.getChunk(chunkLocation.getIntX(), chunkLocation.getIntZ());
 
-		context.sendNow(chunkDataPacket);
+		var chunkDataPacket = new ChunkDataPacket();
+		chunkDataPacket.setX(chunk.getX());
+		chunkDataPacket.setZ(chunk.getZ());
+
+		context.send(chunkDataPacket);
+
+		for (int i = 1; i <= config.world().viewDistance(); i++) {
+			int minX = chunkLocation.getIntX() - i;
+			int minZ = chunkLocation.getIntZ() - i;
+			int maxX = chunkLocation.getIntX() + i;
+			int maxZ = chunkLocation.getIntZ() + i;
+
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int x = minX; x <= maxX; x++) {
+					if ((z == minZ || z == maxZ) || (x == minX || x == maxX)) {
+						chunkDataPacket = new ChunkDataPacket();
+						chunkDataPacket.setX(x);
+						chunkDataPacket.setZ(z);
+
+						context.send(chunkDataPacket);
+					}
+				}
+			}
+		}
+
+		context.flushSending();
 
 		var playerPositionAndLookPacket = new SPlayerPositionAndLookPacket();
-		playerPositionAndLookPacket.setPosition(spawnLocation);
+		playerPositionAndLookPacket.setPosition(world.getSpawn());
 		playerPositionAndLookPacket.setLook(new Look(0f, 0f));
 		playerPositionAndLookPacket.setTeleportId(random.nextInt());
 

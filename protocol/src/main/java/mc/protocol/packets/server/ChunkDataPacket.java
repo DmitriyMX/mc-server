@@ -28,13 +28,17 @@ import mc.protocol.packets.ServerSidePacket;
 @Data
 public class ChunkDataPacket implements ServerSidePacket {
 
+	private static NetByteBuf voidData;
+
 	private int x;
 	private int z;
 
+	@SuppressWarnings("java:S125")
 	@Override
 	public void writeSelf(NetByteBuf netByteBuf) {
 		netByteBuf.writeInt(x);
 		netByteBuf.writeInt(z);
+		/* Временное отключение кода
 		netByteBuf.writeBoolean(true); // Is Full chunk
 		netByteBuf.writeVarInt(0b11111111); // Available Sections
 
@@ -64,6 +68,41 @@ public class ChunkDataPacket implements ServerSidePacket {
 		netByteBuf.writeVarInt(data.readableBytes()); // Size of Data
 		netByteBuf.writeBytes(data); // Data
 		netByteBuf.writeVarInt(0); // Number of block entities
-		/* write NBT's */
+		// write NBT's
+		 */
+
+		netByteBuf.writeBytes(voidData);
+
+		voidData.resetReaderIndex();
+		voidData.resetWriterIndex();
+	}
+
+	static {
+		voidData = new NetByteBuf(Unpooled.buffer());
+		voidData.writeBoolean(true); // Is Full chunk
+		voidData.writeVarInt(0b11111111); // Available Sections
+
+		NetByteBuf data = new NetByteBuf(Unpooled.buffer());
+		for (int i = 0; i < 16; i++) {
+			NetByteBuf dataBuff = new NetByteBuf(Unpooled.wrappedBuffer(new byte[4096]));
+			NetByteBuf blockLight = new NetByteBuf(Unpooled.wrappedBuffer(new byte[2048]));
+			NetByteBuf skyLight = new NetByteBuf(Unpooled.wrappedBuffer(new byte[2048]));
+			NetByteBuf biomes = new NetByteBuf(Unpooled.wrappedBuffer(new byte[256]));
+
+			data.writeUnsignedByte(13);
+			data.writeUnsignedByte(0);
+			data.writeVarInt(dataBuff.readableBytes());
+			data.writeBytes(dataBuff);
+			data.writeBytes(blockLight);
+			data.writeBytes(skyLight);
+			data.writeBytes(biomes);
+		}
+
+		voidData.writeVarInt(data.readableBytes());
+		voidData.writeBytes(data);
+		voidData.writeVarInt(0);
+
+		voidData.markReaderIndex();
+		voidData.markWriterIndex();
 	}
 }
